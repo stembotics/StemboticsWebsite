@@ -1,6 +1,6 @@
 /********** Template CSS **********/
 :root {
-    --primary: #FE5D37;
+    --primary: #3E9E5F;
     --light: #FFF5F3;
     --dark: #103741;
 }
@@ -81,7 +81,7 @@ h4,
 .display-4,
 .display-5,
 .display-6 {
-    font-family: 'Lobster Two', cursive;
+    font-family: Candara,Calibri,Segoe,Segoe UI,Optima,Arial,sans-serif;;
     font-weight: 700;
 }
 
@@ -93,7 +93,7 @@ h6,
 }
 
 .font-secondary {
-    font-family: 'Lobster Two', cursive;
+    font-family: Candara,Calibri,Segoe,Segoe UI,Optima,Arial,sans-serif;
 }
 
 
