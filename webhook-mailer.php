@@ -1,6 +1,9 @@
 <?php
 require_once '../vendor/autoload.php';
 
+mail('info.stembotics@gmail.com', "TEST", 'webhooks');
+
+
 \Stripe\Stripe::setApiKey('sk_test_51P6aVDBacad2NXeV6wdNwV5rzZ8CKPlcbipKqAYGxu2MXS823dUv2bBX2TkS68lzr2XblzjNwONInj9HWFcufTZC00mvInYWHT');
 // Replace this endpoint secret with your endpoint's unique secret
 // If you are testing with the CLI, find the secret by running 'stripe listen'
@@ -21,12 +24,12 @@ try {
   http_response_code(400);
   exit();
 }
-if ($endpoint_secret) {
+if (true) {
   // Only verify the event if there is an endpoint secret defined
   // Otherwise use the basic decoded event
   $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
   try {
-    $event = \Stripe\Webhook::constructEvent(
+    $event = Stripe\Webhook::constructEvent(
       $payload, $sig_header, $endpoint_secret
     );
   } catch(\Stripe\Exception\SignatureVerificationException $e) {
