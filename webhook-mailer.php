@@ -1,5 +1,8 @@
 <?php
 require_once '../vendor/autoload.php';
+require_once '../stripe/lib/Stripe.php';
+require_once '../stripe/lib/Event.php';
+require_once '../stripe/lib/Webhook.php';
 
 Stripe::setApiKey('sk_test_51P6aVDBacad2NXeV6wdNwV5rzZ8CKPlcbipKqAYGxu2MXS823dUv2bBX2TkS68lzr2XblzjNwONInj9HWFcufTZC00mvInYWHT');
 // Replace this endpoint secret with your endpoint's unique secret
