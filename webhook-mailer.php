@@ -30,8 +30,6 @@ if ($endpoint_secret) {
     $event = \Stripe\Webhook::constructEvent(
       $payload, $sig_header, $endpoint_secret
     );
-    mail('info.stembotics@gmail.com', "Stembotics Reciept Paid", $event);
-
   } catch(\Stripe\Exception\SignatureVerificationException $e) {
     // Invalid signature
     echo '⚠️  Webhook error while validating signature.';
@@ -42,18 +40,10 @@ if ($endpoint_secret) {
 
 // Handle the event
 switch ($event->type) {
-  case 'checkout.session.completed':
-    $checkout = $event->data->object; // contains a \Stripe\PaymentIntent
-    // Now that the payment has succeeded, email the customer.
-    $customer_id = $checkout->customer;
-    $customer_email = $checkout->customer_details->email;
-    $customer_name = $checkout->customer_details->name;
-    $customer_number = $checkout->customer_details->phone;
-    $custom_fields = $checkout->custom_fields;
-    $child_name = $custom_fields[0]->text->value;
-    $child_age = $custom_fields[2]->numeric->value;
-    $email_message = sprintf("Dear %s,\n\nThank you for your payment to Stembotics Academy.\n\nWe are pleased to confirm %s's enrollment for the upcoming class.\n\n%s's first class is scheduled for June 1st.\n\nPlease feel free to contact us at info@stembotics.com if you have any questions.\n\nBest regards,\nStembotics Academy", $customer_name, $child_name, $child_name); 
-    mail($customer_email, "Stembotics Reciept Paid", $email_message);
+  case 'payment_intent.succeeded':
+    $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
+    // Then define and call a method to handle the successful payment intent.
+    // handlePaymentIntentSucceeded($paymentIntent);
     break;
   case 'payment_method.attached':
     $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
@@ -63,5 +53,7 @@ switch ($event->type) {
   default:
     // Unexpected event type
     error_log('Received unknown event type');
+    http_response_code(223);
 }
+
 http_response_code(200);
