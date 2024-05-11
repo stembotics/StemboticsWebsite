@@ -1,16 +1,3 @@
-
-
-<!-- // SETUP:
-// 1. Customize all the settings (stripe api key, email settings, email text)
-// 2. Put this code somewhere where it's accessible by a URL on your server.
-// 3. Add the URL of that location to the settings at https://manage.stripe.com/#account/webhooks
-// 4. Have fun!
-
-// set your secret key: remember to change this to your live secret key in production
-// see your keys here https://manage.stripe.com/account
-// 
-// ^^ real is above below is test
-Stripe::setApiKey("sk_test_51P6aVDBacad2NXeV6wdNwV5rzZ8CKPlcbipKqAYGxu2MXS823dUv2bBX2TkS68lzr2XblzjNwONInj9HWFcufTZC00mvInYWHT"); -->
 <?php
 require_once '../vendor/autoload.php';
 require_once '../secrets.php';
