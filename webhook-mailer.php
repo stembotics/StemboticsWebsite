@@ -1,10 +1,7 @@
 <?php
 require_once '../vendor/autoload.php';
 
-mail('info.stembotics@gmail.com', "TEST", 'webhooks');
-
-
-\Stripe\Stripe::setApiKey('sk_test_51P6aVDBacad2NXeV6wdNwV5rzZ8CKPlcbipKqAYGxu2MXS823dUv2bBX2TkS68lzr2XblzjNwONInj9HWFcufTZC00mvInYWHT');
+Stripe::setApiKey('sk_test_51P6aVDBacad2NXeV6wdNwV5rzZ8CKPlcbipKqAYGxu2MXS823dUv2bBX2TkS68lzr2XblzjNwONInj9HWFcufTZC00mvInYWHT');
 // Replace this endpoint secret with your endpoint's unique secret
 // If you are testing with the CLI, find the secret by running 'stripe listen'
 // If you are using an endpoint defined with the API or dashboard, look in your webhook settings
@@ -15,10 +12,10 @@ $payload = @file_get_contents('php://input');
 $event = null;
 
 try {
-  $event = \Stripe\Event::constructFrom(
+  $event = Event::constructFrom(
     json_decode($payload, true)
   );
-} catch(\UnexpectedValueException $e) {
+} catch(UnexpectedValueException $e) {
   // Invalid payload
   echo '⚠️  Webhook error while parsing basic request.';
   http_response_code(400);
@@ -29,10 +26,10 @@ if (true) {
   // Otherwise use the basic decoded event
   $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
   try {
-    $event = Stripe\Webhook::constructEvent(
+    $event = Webhook::constructEvent(
       $payload, $sig_header, $endpoint_secret
     );
-  } catch(\Stripe\Exception\SignatureVerificationException $e) {
+  } catch(SignatureVerificationException $e) {
     // Invalid signature
     echo '⚠️  Webhook error while validating signature.';
     http_response_code(400);
