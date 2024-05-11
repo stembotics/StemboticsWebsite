@@ -7,7 +7,7 @@ require_once '../secrets.php';
 // If you are testing with the CLI, find the secret by running 'stripe listen'
 // If you are using an endpoint defined with the API or dashboard, look in your webhook settings
 // at https://dashboard.stripe.com/webhooks
-$endpoint_secret = 'whsec_2c413b00338ec42a47c7522ab2b20035328232703852b0d556671a7e179488f5';
+$endpoint_secret = 'whsec_vjFAQjMn9yAgHONZ17fzzHHyzsygQ9sq';
 
 $payload = @file_get_contents('php://input');
 $event = null;
