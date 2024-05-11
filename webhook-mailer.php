@@ -4,7 +4,7 @@ require_once '../stripe/lib/Stripe.php';
 require_once '../stripe/lib/Event.php';
 require_once '../stripe/lib/Webhook.php';
 
-Stripe::setApiKey('sk_test_51P6aVDBacad2NXeV6wdNwV5rzZ8CKPlcbipKqAYGxu2MXS823dUv2bBX2TkS68lzr2XblzjNwONInj9HWFcufTZC00mvInYWHT');
+Stripe.setApiKey('sk_test_51P6aVDBacad2NXeV6wdNwV5rzZ8CKPlcbipKqAYGxu2MXS823dUv2bBX2TkS68lzr2XblzjNwONInj9HWFcufTZC00mvInYWHT');
 // Replace this endpoint secret with your endpoint's unique secret
 // If you are testing with the CLI, find the secret by running 'stripe listen'
 // If you are using an endpoint defined with the API or dashboard, look in your webhook settings
@@ -15,7 +15,7 @@ $payload = @file_get_contents('php://input');
 $event = null;
 
 try {
-  $event = Event::constructFrom(
+  $event = Event.constructFrom(
     json_decode($payload, true)
   );
 } catch(UnexpectedValueException $e) {
@@ -29,7 +29,7 @@ if (true) {
   // Otherwise use the basic decoded event
   $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
   try {
-    $event = Webhook::constructEvent(
+    $event = Webhook.constructEvent(
       $payload, $sig_header, $endpoint_secret
     );
   } catch(SignatureVerificationException $e) {
