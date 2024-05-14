@@ -23,5 +23,5 @@ if (mail($email, $subject, $body, implode("\r\n", $headers))) {
 } else {
     echo "Error sending email!";
 }
-
+http_response_code(200);
 ?>
