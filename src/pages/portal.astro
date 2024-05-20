@@ -12,7 +12,7 @@ import Notice from "@/shortcodes/Notice";
 import type { plainify } from "@/lib/utils/textConverter";
 
 const require = createRequire(import.meta.url);
-const stripe = require('stripe')(process.env.STRIPE_KEY);
+const stripe = require('stripe')("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");
 
 let customer_name = 'customer["name"]';
 let customer_email = 'customer["email"]';

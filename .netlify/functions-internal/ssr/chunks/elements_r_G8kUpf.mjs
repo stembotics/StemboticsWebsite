@@ -3,7 +3,7 @@ import './astro/assets-service_BtMcE9EN.mjs';
 import { $ as $$Image } from './pages/generic_V_u2550x.mjs';
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { useState } from 'react';
-import { N as Notice } from './prerender_BbwFkvHQ.mjs';
+import { N as Notice } from './prerender_DNnRcqMr.mjs';
 import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 /* empty css                                    */
 import 'github-slugger';
