@@ -7,8 +7,9 @@ import { defineConfig, squooshImageService } from "astro/config";
 import remarkCollapse from "remark-collapse";
 import remarkToc from "remark-toc";
 import config from "./src/config/config.json";
-
 import vercel from "@astrojs/vercel/serverless";
+
+import netlify from "@astrojs/netlify";
 
 // https://astro.build/config
 export default defineConfig({
@@ -35,6 +36,6 @@ export default defineConfig({
     },
     extendDefaultPlugins: true
   },
-  output: "server",
-  adapter: vercel()
+  output: "hybrid",
+  adapter: netlify()
 });
