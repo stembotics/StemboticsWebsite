@@ -1,0 +1,49 @@
+{
+  "site": {
+    "title": "Stembotics",
+    "base_url": "https://stembotics.org",
+    "base_path": "/",
+    "trailing_slash": false,
+    "favicon": "/images/favicon.png",
+    "logo": "/images/logo.png",
+    "logo_width": "202",
+    "logo_height": "70",
+    "logo_text": "Stembotics"
+  },
+
+  "settings": {
+    "pagination": 6,
+    "summary_length": 100,
+    "blog_folder": "blog"
+  },
+
+  "call_to_action": {
+    "title": "Empowering Future Innovators through STEM Education",
+    "description": "At Stembotics, we are dedicated to inspiring and educating the next generation of innovators in the world of STEM. Our programs provide hands-on learning experiences that cultivate creativity, critical thinking, and problem-solving skills.",
+    "button": {
+      "label": "Check out our programs",
+      "link": "/pricing"
+    }
+  },
+
+  "disqus": {
+    "enable": true,
+    "shortname": "stembotics-academy",
+    "settings": {}
+  },
+
+  "params": {
+    "footer_description": "Join us in shaping a brighter future through STEM education. Contact us to learn more about our programs and how you can get involved.",
+    "email": "info@stembotics.org",
+    "location": "Mount Laurel, NJ, 08054",
+    "phone": "+1 (856) 209-3538",
+    "contact_form_action": "https://formsubmit.co/cf0372565517c69661491214035866eb",
+    "copyright": "Copyright © 2024 a website by [Stembotics](https://stembotics.org)"
+  },
+
+  "metadata": {
+    "meta_author": "Stembotics",
+    "meta_image": "/images/og-image.png",
+    "meta_description": "stembotics"
+  }
+}
