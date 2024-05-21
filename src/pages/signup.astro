@@ -4,13 +4,10 @@ import { createRequire } from 'module';
 import SigninSlider from "@/layouts/function-components/SigninSlider.jsx";
 import { Phone } from "react-feather";
 import Notice from "@/layouts/shortcodes/Notice.jsx"
-import Stripe from "stripe"
-
-console.log(process.env.VITE_STRIPE_KEY);
+import Stripe from 'stripe';
 
 const require = createRequire(import.meta.url);
-const stripe = require('stripe')(process.env.VITE_STRIPE_KEY);
-
+const stripe = new Stripe(import.meta.env.STRIPE_KEY);
 const errors = { username: "", email: "", password: "" };
 
 if (Astro.request.method === 'POST') {
