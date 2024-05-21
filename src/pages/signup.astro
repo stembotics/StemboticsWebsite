@@ -4,6 +4,9 @@ import { createRequire } from 'module';
 import SigninSlider from "@/layouts/function-components/SigninSlider.jsx";
 import { Phone } from "react-feather";
 import Notice from "@/layouts/shortcodes/Notice.jsx"
+import Stripe from "stripe"
+
+console.log(process.env.VITE_STRIPE_KEY);
 
 const require = createRequire(import.meta.url);
 const stripe = require('stripe')(process.env.VITE_STRIPE_KEY);
@@ -76,7 +79,7 @@ if (Astro.request.method === 'POST') {
               >
             </div> -->
 
-            <form method="POST" enctype="application/x-www-form-urlencoded">
+            <form method="POST" enctype="application/x-www-form-urlencoded" data-netlify="true">
               <br>
               <div class="form-group">
                 <label for="name" class="form-label">Full Name</label>
