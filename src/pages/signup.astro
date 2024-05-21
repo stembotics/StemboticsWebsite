@@ -46,7 +46,7 @@ if (Astro.request.method === 'POST') {
     });
     console.log(customer['id'])
     Astro.cookies.set("id",customer['id'])
-    return Astro.redirect("/signin")
+    return Astro.redirect("/portal")
   } else{
     errors.email += "Email is already registered.";
   }
@@ -58,11 +58,13 @@ if (Astro.request.method === 'POST') {
   <section>
     <div class="container max-w-full">
       <div class="row">
-        <div class="min-h-[980px] bg-white py-10 lg:col-6 lg:py-[114px]">
-          <div class="mx-auto w-full max-w-[480px]">
-            <img class="mb-8" src="/images/flower.png" alt="" />
-            <h1 class="mb-4">Sign Up</h1>
-            <p>Get ready to be immersed in learning</p>
+        <div class="min-h-[980px] bg-white py-10  lg:py-[114px] bg-gradient">
+          <div class="mx-auto w-full max-w-[960px] ">
+            <div class="flex flex-col items-center justify-center">
+              <img class="mb-8 mx-auto " src="/images/flower.png" alt="" />
+              <h1 class="mb-4 text-black">Sign Up</h1>
+              <h4>Get ready to be immersed in learning</h4>
+            </div>
             <!-- <div class="signin-options mt-10">
               <a class="btn btn-outline-white block w-full text-dark" href="#"
                 >Sign Up With Google</a
@@ -79,7 +81,7 @@ if (Astro.request.method === 'POST') {
             <form method="POST" enctype="application/x-www-form-urlencoded" data-netlify="true">
               <br>
               <div class="form-group">
-                <label for="name" class="form-label">Full Name</label>
+                <label for="name" class="form-label text-black">Full Name</label>
                 <input
                   type="text"
                   id="name"
@@ -92,7 +94,7 @@ if (Astro.request.method === 'POST') {
               </div>
               <br>
               <div class="form-group">
-                <label for="childName" class="form-label">Child's Full Name</label>
+                <label for="childName" class="form-label text-black">Child's Full Name</label>
                 <input
                   type="text"
                   id="childName"
@@ -104,7 +106,7 @@ if (Astro.request.method === 'POST') {
               </div>
               <br>
               <div class="form-group">
-                <label for="childAge" class="form-label">Child Age</label>
+                <label for="childAge" class="form-label text-black">Child Age</label>
                 <input
                   type="number"
                   id="childAge"
@@ -115,7 +117,7 @@ if (Astro.request.method === 'POST') {
                 />
               </div><br>
               <div class="form-group mb-5">
-                <label class="form-label" for="bestTimes">Best Times for Classes</label>
+                <label class="form-label text-black" for="bestTimes">Best Times for Classes</label>
                 <select name="bestTimes" id="bestTimes" class="form-select" required>
                   <option value="thursday5pm7pm">Thursday 5 pm - 7 pm</option>
                   <option value="thursday7pm9pm">Thursday 7 pm - 9 pm</option>
@@ -125,7 +127,7 @@ if (Astro.request.method === 'POST') {
               </div>
               <br>
               <div class="form-group mt-4">
-                <label for="email" class="form-label">Email Address</label>
+                <label for="email" class="form-label text-black">Email Address</label>
                 <input
                   type="email"
                   id="email"
@@ -137,7 +139,7 @@ if (Astro.request.method === 'POST') {
                 {errors.email && <Notice type="warning">{errors.email} Please <a href='/signin'>Sign In</a></Notice>}
               </div>
               <div class="form-group mt-4">
-                <label for="tel" class="form-label">Phone No.</label>
+                <label for="tel" class="form-label text-black">Phone No.</label>
                 <input
                   type="tel"
                   id="tel"
@@ -149,7 +151,7 @@ if (Astro.request.method === 'POST') {
               </div>
               <br>
               <div class="form-group mt-4">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label text-black">Password</label>
                 <input
                   type="password"
                   minlength="6"
@@ -169,16 +171,16 @@ if (Astro.request.method === 'POST') {
               />
             </form>
             
-            <p class="mt-6 text-center">
-              Have an <a class="text-dark">account</a>?
-              <a class="text-dark" href="/signin">Sign in</a> here
+            <p class="mt-6 text-center text-dark">
+              Have an <a class="text-black">account</a>?
+              <a class="text-black" href="/signin">Sign in</a> here
             </p>
           </div>
         </div>
-        <SigninSlider
+        <!-- <SigninSlider
         client:load
         title="Get ready to learn!"
-        />
+        /> -->
       </div>
     </div>
   </section>

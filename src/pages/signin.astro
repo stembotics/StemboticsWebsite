@@ -42,10 +42,12 @@ if (Astro.request.method === 'POST') {
   <section>
     <div class="container max-w-full">
       <div class="row">
-        <div class="min-h-[980px] bg-white py-10 lg:col-6 lg:py-[114px]">
-          <div class="mx-auto w-full max-w-[480px]">
-            <img class="mb-8" src="/images/flower.png" alt="" />
-            <h1 class="mb-4">Sign In</h1>
+        <div class="min-h-[980px] bg-white py-10  lg:py-[114px] bg-gradient">
+          <div class="mx-auto w-full max-w-[960px] ">
+            <div class="flex flex-col items-center justify-center">
+              <img class="mb-8 mx-auto " src="/images/flower.png" alt="" />
+              <h1 class="mb-4 text-black">Sign In</h1>
+            </div>
             <br>
             <form  method="post" enctype="application/x-www-form-urlencoded" data-netlify="true"> 
               <div class="form-group">
@@ -79,17 +81,17 @@ if (Astro.request.method === 'POST') {
                 type="submit"
                 value="Sign In"
               />
-              <p class="mt-6 text-center">
-                Can't <a class="text-dark">log in</a>?
-                <a class="text-dark" href="/signup">Sign up</a> for create account
+              <p class="mt-6 text-center text-dark">
+                Can't <a class="text-black">log in</a>?
+                <a class="text-black" href="/signup">Sign up</a> for create account
               </p>
             </form>
           </div>
         </div>
-        <SigninSlider
+        <!-- <SigninSlider
           client:load
           title=" Turn your All ideas into<br /> your reality"
-        />
+        /> -->
       </div>
     </div>
   </section>

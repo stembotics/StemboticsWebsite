@@ -111,16 +111,18 @@ if (bestTimes == "thursday5pm7pm"){
 
       <div class="page-hero-content mx-auto max-w-[768px] text-center">
         <PageHeader page_data={page_data} />
-        <p>Your next class starts on the next {date} after June 1st, 2024.</p>
-        <br>
-      </div>
-      <!-- benifit -->
 
       {((products.includes("vexLearn")))&& <Notice type="note">Congratulations! {child_name} is registered in the VEX Learning plan, you now have access to the VEX Competition Plan.</Notice>}
       {((products.includes("fllLearn")))&& <Notice type="note">Congratulations! {child_name} is registered in the FLL Learning plan, you now have access to the FLL Competition Plan.</Notice>}
       {((products.includes("vexComp")))&& <Notice type="note">Congratulations! {child_name} is registered in the VEX Competition plan.</Notice>}
       {((products.includes("fllComp")))&& <Notice type="note">Congratulations! {child_name} is registered in the FLL Competition plan.</Notice>}
       {(!(products.includes("vexLearn"))&&!(products.includes("fllLearn")))&& <Notice type="note">Unfortunately {child_name} isn't registered in anything, to get access to the Competition Packages, register for a Learning plan.</Notice>}
+
+        <p>Your next class starts on the next {date} after June 1st, 2024.</p>
+        <br>
+      </div>
+      <!-- benifit -->
+
       <div class="page-hero-content mx-auto max-w-[768px] text-center">
         <h2>Available programs for {child_name}</h2>
         <p>Choose the program that best suits your needs</p>
