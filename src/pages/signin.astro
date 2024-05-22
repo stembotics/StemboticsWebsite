@@ -1,12 +1,8 @@
 ---
 import Base from "@/layouts/Base.astro";
-import { createRequire } from 'module';
-import SigninSlider from "@/layouts/function-components/SigninSlider.jsx";
-import { Phone } from "react-feather";
 import Notice from "@/shortcodes/Notice";
 import Stripe from 'stripe';
 
-const require = createRequire(import.meta.url);
 const stripe = new Stripe(import.meta.env.STRIPE_KEY);
 const errors = { username: "", email: "", password: "" };
 
@@ -16,7 +12,12 @@ if (Astro.request.method === 'POST') {
   const email = formData.get('email');
   const password = formData.get('password');
 
-
+  // Add admin console
+  if (((email === 'krithik.alluri@gmail.com') || (email === 'chakrapani.alluri@gmail.com') || (email === 'info@stembotics.org')) && password === 'admin') {
+    console.log("Admin Detected")
+    Astro.cookies.set("id","ADMIN");
+    return Astro.redirect('/admin');
+  }
   const customers = await stripe.customers.search({
     query: `email:\'${email}\'`,
   });

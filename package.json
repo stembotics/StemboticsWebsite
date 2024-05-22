@@ -20,6 +20,7 @@
     "@astrojs/sitemap": "^3.0.5",
     "@astrojs/tailwind": "^5.1.0",
     "@astrojs/vercel": "^7.6.0",
+    "@stripe/stripe-js": "^3.4.0",
     "astro": "^4.3.2",
     "astro-auto-import": "^0.4.2",
     "astro-font": "^0.0.77",
@@ -34,10 +35,10 @@
     "react-youtube": "^10.1.0",
     "remark-collapse": "^0.1.2",
     "remark-toc": "^9.0.0",
+    "sheetdb-node": "^0.0.12",
     "shufflejs": "^6.1.0",
-    "swiper": "^11.0.6",
     "stripe": "^15.7.0",
-    "@stripe/stripe-js": "^3.4.0"
+    "swiper": "^11.0.6"
   },
   "devDependencies": {
     "@stripe/stripe-js": "^3.4.0",

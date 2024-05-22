@@ -1,0 +1,53 @@
+---
+import Base from "@/layouts/Base.astro";
+import { createRequire } from 'module';
+import SigninSlider from "@/layouts/function-components/SigninSlider.jsx";
+import { Phone } from "react-feather";
+import Notice from "@/layouts/shortcodes/Notice.jsx"
+import sheetdb from "sheetdb-node";
+import Stripe from 'stripe';
+import { getSinglePage } from "@/lib/contentParser.astro";
+
+const stripe = new Stripe(import.meta.env.STRIPE_KEY);
+const errors = { username: "", email: "", good: "" };
+
+const customers = await stripe.customers.list({
+  limit: 20,
+});
+let customerList = customers["data"];
+// create a config file
+var config = {
+  address: '210dinh2sfzez',
+  auth_login: 't4gsnkhy',
+  auth_password: '9kum7wyoyvosjnz5vb0a',
+};
+
+// Create new client
+var client = sheetdb(config);
+if (Astro.cookies.has("id")) {
+  let id = Astro.cookies.get("id");
+  if (id?.value !== "ADMIN"){
+    return Astro.redirect("/signup")
+  }
+} else{
+  return Astro.redirect("/signup")
+}
+// // console.log(customerList);
+// for (var i = 0; i < customerList.length; i++) {
+//   // document.getElementsByTagName("table")[0].innerHTML+= "<tr><td>"+customerList[i]['name']+"</td><td>"+customerList[i]['email']+"</td><td>"+customerList[i]["phone"]+"</td></tr>"
+//   pass
+// };
+
+---
+
+<Base>
+  <section>
+    <div class="container max-w-full">
+      <div class="page-hero-content mx-auto max-w-[768px] text-center">
+        <h1>Welcome, Admin</h1>
+
+        <br>
+      </div>
+    </div>
+  </section>
+</Base>

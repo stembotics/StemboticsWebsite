@@ -10,7 +10,7 @@ const Notice = ({ type, children }) => {
         </svg> */}
         {/* <p className="my-0 ml-1.5 text-base capitalize text-white">{type}</p> */}
       </div>
-      <div className="notice-body my-0 rounded-b-md p-3 pt-[40px]">
+      <div className="notice-body my-0 rounded-b-md p-3 pt-[40px] text-black">
         {children}
       </div>
     </div>
