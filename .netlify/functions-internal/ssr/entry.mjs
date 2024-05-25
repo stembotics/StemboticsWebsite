@@ -1,31 +1,31 @@
 import { renderers } from './renderers.mjs';
-import { manifest } from './manifest_cklIDCIo.mjs';
+import { manifest } from './manifest_qjdpqTO5.mjs';
 import * as serverEntrypointModule from '@astrojs/netlify/ssr-function.js';
 import { onRequest } from './_noop-middleware.mjs';
 
-const _page0 = () => import('./chunks/generic_9C_PrV2-.mjs');
-const _page1 = () => import('./chunks/404_DDej2avs.mjs');
-const _page2 = () => import('./chunks/about_N6dxw_Lo.mjs');
-const _page3 = () => import('./chunks/admin_CYs8jhoj.mjs');
-const _page4 = () => import('./chunks/_slug__Beo7L3I6.mjs');
-const _page5 = () => import('./chunks/_single__C8yQJ-v7.mjs');
-const _page6 = () => import('./chunks/index_ROxidzqR.mjs');
-const _page7 = () => import('./chunks/_single__C9CzlbZQ.mjs');
-const _page8 = () => import('./chunks/index_Ba3-qRdC.mjs');
-const _page9 = () => import('./chunks/_category__D4VxjVoL.mjs');
-const _page10 = () => import('./chunks/index_BMSpQHx5.mjs');
-const _page11 = () => import('./chunks/contact_D7kHTo9a.mjs');
-const _page12 = () => import('./chunks/features_U5q0JiEY.mjs');
-const _page13 = () => import('./chunks/how-it-works_1wLmRgZm.mjs');
-const _page14 = () => import('./chunks/_single__PTJo3c5T.mjs');
-const _page15 = () => import('./chunks/index_B_BQ0m1P.mjs');
-const _page16 = () => import('./chunks/portal_xLBW9vfn.mjs');
-const _page17 = () => import('./chunks/pricing_CAukWAn4.mjs');
-const _page18 = () => import('./chunks/signin_DcXT7ime.mjs');
-const _page19 = () => import('./chunks/signup_C4QULe7i.mjs');
-const _page20 = () => import('./chunks/volunteer_CO5JQ5_Q.mjs');
-const _page21 = () => import('./chunks/_regular__vjNyHwOI.mjs');
-const _page22 = () => import('./chunks/index_DzfnxBme.mjs');
+const _page0 = () => import('./chunks/generic_Dv446E4e.mjs');
+const _page1 = () => import('./chunks/404_Dv7NWKgI.mjs');
+const _page2 = () => import('./chunks/about_BxxLwKZN.mjs');
+const _page3 = () => import('./chunks/admin_D4HOUsMq.mjs');
+const _page4 = () => import('./chunks/_slug__DaitH8fc.mjs');
+const _page5 = () => import('./chunks/_single__VYrn_CHZ.mjs');
+const _page6 = () => import('./chunks/index_BpBF4uqm.mjs');
+const _page7 = () => import('./chunks/_single__DklR0F2B.mjs');
+const _page8 = () => import('./chunks/index_DSz0q8Ig.mjs');
+const _page9 = () => import('./chunks/_category__vRLa9fH6.mjs');
+const _page10 = () => import('./chunks/index_CczA43bJ.mjs');
+const _page11 = () => import('./chunks/contact_CvFPt0Yz.mjs');
+const _page12 = () => import('./chunks/features_DWxyAuNe.mjs');
+const _page13 = () => import('./chunks/how-it-works_DeDYWaAW.mjs');
+const _page14 = () => import('./chunks/_single__4Xfib3gd.mjs');
+const _page15 = () => import('./chunks/index_BSE2RoGh.mjs');
+const _page16 = () => import('./chunks/portal_fIdw0eIM.mjs');
+const _page17 = () => import('./chunks/pricing_C9oP9aJl.mjs');
+const _page18 = () => import('./chunks/signin_Dht5Qc4T.mjs');
+const _page19 = () => import('./chunks/signup_KvLsoMNg.mjs');
+const _page20 = () => import('./chunks/volunteer_BYd7n4xK.mjs');
+const _page21 = () => import('./chunks/_regular__bWfY4UOf.mjs');
+const _page22 = () => import('./chunks/index_D-rRV-TI.mjs');
 const pageMap = new Map([
     ["node_modules/astro/dist/assets/endpoint/generic.js", _page0],
     ["src/pages/404.astro", _page1],
@@ -58,7 +58,7 @@ const _manifest = Object.assign(manifest, {
     middleware: onRequest
 });
 const _args = {
-    "middlewareSecret": "1c3620c7-9ac5-4611-8563-7ec4defe0367"
+    "middlewareSecret": "2ed78481-d02d-4184-8baa-a788ff87b76f"
 };
 const _exports = serverEntrypointModule.createExports(_manifest, _args);
 const __astrojsSsrVirtualEntry = _exports.default;

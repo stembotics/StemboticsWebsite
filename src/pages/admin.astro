@@ -22,6 +22,9 @@ var config = {
   auth_password: '9kum7wyoyvosjnz5vb0a',
 };
 
+let customerCount = customerList.length
+// console.log(customers);
+// console.log(customerList[0]);
 // Create new client
 var client = sheetdb(config);
 if (Astro.cookies.has("id")) {
@@ -38,14 +41,49 @@ if (Astro.cookies.has("id")) {
 //   pass
 // };
 
----
+let tableHTML = ""
+for (var i = 0;i<customerCount;i++){
+  let temp = " <tr> <td>{id}</td><td>{email}</td><td>{name}</td><td>{childname}</td><td>{time}</td><td>{childage}</td></tr> ";
+  temp = temp.replaceAll('{id}',customerList[i]['id']);
+  temp = temp.replaceAll('{email}',customerList[i]['email']);
+  temp = temp.replaceAll('{name}',customerList[i]['name']);
+  temp = temp.replaceAll('{childname}',customerList[i]['metadata']['childName']);
+  temp = temp.replaceAll('{time}',customerList[i]['metadata']['bestTimes']);
+  temp = temp.replaceAll('{childage}',customerList[i]['metadata']['childAge']);
+  
+  tableHTML = tableHTML +temp;
+}
 
+---
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  tr:hover {background-color: rgb(45, 243, 95);}
+
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  </style>
 <Base>
   <section>
     <div class="container max-w-full">
-      <div class="page-hero-content mx-auto max-w-[768px] text-center">
+      <div class="page-hero-content mx-auto max-w-[1700px] text-center">
         <h1>Welcome, Admin</h1>
-
+        <table class="text-black">
+          <tr>
+            <td>ID</td>
+            <td>Email</td>
+            <td>Name</td>
+            <td>Child Name</td>
+            <td>Best Times</td>
+            <td>Child Age</td>
+          </tr>
+          <div set:html={tableHTML} />
+        </table>
         <br>
       </div>
     </div>
