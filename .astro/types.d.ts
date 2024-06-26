@@ -310,15 +310,6 @@ declare module 'astro:content' {
   data: any
 } & { render(): Render[".md"] };
 };
-"how-it-works": {
-"index.md": {
-	id: "index.md";
-  slug: "index";
-  body: string;
-  collection: "how-it-works";
-  data: any
-} & { render(): Render[".md"] };
-};
 "integrations": {
 "-index.mdx": {
 	id: "-index.mdx";
@@ -415,6 +406,15 @@ declare module 'astro:content' {
   slug: "index";
   body: string;
   collection: "pricing";
+  data: any
+} & { render(): Render[".md"] };
+};
+"red-watch": {
+"index.md": {
+	id: "index.md";
+  slug: "index";
+  body: string;
+  collection: "red-watch";
   data: any
 } & { render(): Render[".md"] };
 };

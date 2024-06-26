@@ -1,0 +1,76 @@
+---
+import { Image } from "astro:assets";
+import PageHeader from "@/components/PageHeader.astro";
+import Shape from "@/components/Shape.astro";
+import Base from "@/layouts/Base.astro";
+import Cta from "@/layouts/partials/Cta.astro";
+import { getEntryBySlug } from "astro:content";
+import { AiFillCheckCircle } from "react-icons/ai";
+import FeatureBanner from "@/components/features/FeatureBanner.astro";
+
+const red_watch = await getEntryBySlug("red-watch", "index");
+const { perfomance, our_works } = red_watch.data;
+console.log(red_watch.data)
+const page_data = {
+  ...red_watch.data,
+  content: red_watch.body,
+};
+---
+
+<Base
+  title={red_watch.data.title}
+  meta_title={red_watch.data.meta_title}
+  description={red_watch.data.description}
+  image={red_watch.data.image}
+>
+  <FeatureBanner features={red_watch.data} />
+
+  <Shape />
+  
+
+  <section>
+    <div class="container">
+      {
+        our_works.map((item: any, index: number) => (
+          <div class="gx-5 row mt-16 items-center first:mt-12">
+            <div
+              class={`lg:col-7 ${
+                index % 2 === 0 ? "lg:order-1" : "lg:order-0"
+              }`}
+            >
+              <div class="relative">
+                <Image
+                  class="w-full object-contain"
+                  alt="service"
+                  width={473}
+                  height={286}
+                  src={item.image}
+                />
+              </div>
+            </div>
+            <div
+              class={`mt-6 lg:col-5 lg:mt-0 ${
+                index % 2 === 0 ? "lg:order-0" : "lg:order-1"
+              }`}
+            >
+              <div class="text-container">
+                <h2 class="lg:text-4xl">{item.title}</h2>
+
+                <ul class="mt-6 text-dark lg:-ml-4">
+                  {item.list.map((list: any) => (
+                    <li class="mb-2 flex items-center rounded px-4">
+                      <AiFillCheckCircle className="mr-3 fill-primary text-white" />
+                      {list}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <Cta />
+</Base>
