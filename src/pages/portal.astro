@@ -67,7 +67,7 @@ const subData = subscriptions['data']
 const custSubs = []
 let planid = ""
 let products = "";
-
+console.log(subData);
 for (let i =0; i < subData.length; i++) {
   if (subData[i].customer == id?.value){
     custSubs.push(subData[i]);
@@ -86,7 +86,7 @@ const paymentIntents = await stripe.paymentIntents.list({
   customer:id?.value,
   limit: 10,
 });
-console.log(products)
+// console.log(products)
 const intentData = paymentIntents['data'];
 for (let i = 0; i < intentData.length; i++) {
   if (intentData[i]['amount']==16000){
@@ -134,7 +134,7 @@ if (bestTimes == "thursday5pm7pm"){
 
       <div class="page-hero-content mx-auto max-w-[768px] text-center">
         <PageHeader page_data={page_data} />
-
+        
       {((products.includes("VEX IQ Plan")))&& <Notice type="note">Congratulations! {child_name} is registered in the VEX Learning plan, you now have access to the VEX Competition Plan. <a class="text-black" href="https://docs.google.com/spreadsheets/d/1Eu3as98oDpum2poeEGtB4c2cJXKcdIinRPOWN4dRd9I/edit?usp=sharing">Click for the Curriculum</a></Notice>}
       {((products.includes("FLL Plan")))&& <Notice type="note">Congratulations! {child_name} is registered in the FLL Learning plan, you now have access to the FLL Competition Plan.</Notice>}
       {((products.includes("vexComp")))&& <Notice type="note">Congratulations! {child_name} is registered in the VEX Competition plan.</Notice>}
@@ -142,6 +142,9 @@ if (bestTimes == "thursday5pm7pm"){
       {(!(products.includes("VEX IQ Plan"))&&!(products.includes("FLL Plan")))&& <Notice type="note">Unfortunately {child_name} isn't registered in anything, to get access to the Competition Packages, register for a Learning plan.</Notice>}
 
         <p>Your next class starts on the next {date} after June 1st, 2024.</p>
+        <a class="btn btn-primary mt-6" href='https://meet.google.com/vpz-fcif-bvu'>
+          Join Google Meet
+        </a>
         <br>
       </div>
       <!-- benifit -->
