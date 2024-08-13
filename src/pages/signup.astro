@@ -7,7 +7,7 @@ import Notice from "@/layouts/shortcodes/Notice.jsx"
 import Stripe from 'stripe';
 
 const require = createRequire(import.meta.url);
-const stripe = new Stripe(import.meta.env.STRIPE_KEY);
+const stripe = new Stripe(import.meta.env.VITE_STRIPE_KEY);
 const errors = { username: "", email: "", password: "" };
 
 if (Astro.request.method === 'POST') {

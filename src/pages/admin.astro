@@ -8,7 +8,7 @@ import sheetdb from "sheetdb-node";
 import Stripe from 'stripe';
 import { getSinglePage } from "@/lib/contentParser.astro";
 
-const stripe = new Stripe(import.meta.env.STRIPE_KEY);
+const stripe = new Stripe(import.meta.env.VITE_STRIPE_KEY);
 const errors = { username: "", email: "", good: "" };
 
 const customers = await stripe.customers.list({
