@@ -3,7 +3,7 @@ import Base from "@/layouts/Base.astro";
 import Notice from "@/shortcodes/Notice";
 import Stripe from 'stripe';
 
-const stripe = new Stripe(import.meta.env.VITE_STRIPE_KEY);
+const stripe = new Stripe(import.meta.env.STRIPE_KEY);
 const errors = { username: "", email: "", password: "" };
 
 if (Astro.request.method === 'POST') {

@@ -14,8 +14,8 @@ import Stripe from 'stripe';
 
 const require = createRequire(import.meta.url);
 
-const stripe = new Stripe(import.meta.env.VITE_STRIPE_KEY);
-// `${import.meta.env.VITE_STRIPE_KEY}`
+const stripe = new Stripe(import.meta.env.STRIPE_KEY);
+// `${import.meta.env.STRIPE_KEY}`
 
 let customer_name = 'customer["name"]';
 let customer_email = 'customer["email"]';
