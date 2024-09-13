@@ -17,10 +17,6 @@
       "url": "/features"
     },
     {
-      "name": "Red Watch",
-      "url": "/red-watch"
-    },
-    {
       "name": "Volunteer",
       "url": "/volunteer"
     },
@@ -42,10 +38,6 @@
     {
       "name": "Contact",
       "url": "/contact"
-    },
-    {
-      "name": "Red Watch",
-      "url": "/red-watch"
     },
     {
       "name": "Enrollment",
