@@ -254,6 +254,188 @@ declare module 'astro:content' {
   collection: "careers";
   data: any
 } & { render(): Render[".mdx"] };
+"3d-animaions-rendering.mdx": {
+	id: "3d-animaions-rendering.mdx";
+  slug: "3d-animaions-rendering";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"3dmodelandprint.mdx": {
+	id: "3dmodelandprint.mdx";
+  slug: "3dmodelandprint";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"advanced-robotics.mdx": {
+	id: "advanced-robotics.mdx";
+  slug: "advanced-robotics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"aerospace-basics.mdx": {
+	id: "aerospace-basics.mdx";
+  slug: "aerospace-basics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"app-dev.mdx": {
+	id: "app-dev.mdx";
+  slug: "app-dev";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"applied-math-in-tech.mdx": {
+	id: "applied-math-in-tech.mdx";
+  slug: "applied-math-in-tech";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"ar-dev.mdx": {
+	id: "ar-dev.mdx";
+  slug: "ar-dev";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"ar-vr-game-dev.mdx": {
+	id: "ar-vr-game-dev.mdx";
+  slug: "ar-vr-game-dev";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"astronomy-stargazing.mdx": {
+	id: "astronomy-stargazing.mdx";
+  slug: "astronomy-stargazing";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"astrophysics.mdx": {
+	id: "astrophysics.mdx";
+  slug: "astrophysics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"basics-of-rocketry.mdx": {
+	id: "basics-of-rocketry.mdx";
+  slug: "basics-of-rocketry";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"big-data-cloud-computing.mdx": {
+	id: "big-data-cloud-computing.mdx";
+  slug: "big-data-cloud-computing";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"biochem.mdx": {
+	id: "biochem.mdx";
+  slug: "biochem";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"biomedical-engineering.mdx": {
+	id: "biomedical-engineering.mdx";
+  slug: "biomedical-engineering";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"biotech-beginners.mdx": {
+	id: "biotech-beginners.mdx";
+  slug: "biotech-beginners";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"building-auto-robots.mdx": {
+	id: "building-auto-robots.mdx";
+  slug: "building-auto-robots";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"chem-engineering-basics.mdx": {
+	id: "chem-engineering-basics.mdx";
+  slug: "chem-engineering-basics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"climate-science.mdx": {
+	id: "climate-science.mdx";
+  slug: "climate-science";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"data-decision-making.mdx": {
+	id: "data-decision-making.mdx";
+  slug: "data-decision-making";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"digital-art-animation.mdx": {
+	id: "digital-art-animation.mdx";
+  slug: "digital-art-animation";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"drone-programming.mdx": {
+	id: "drone-programming.mdx";
+  slug: "drone-programming";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"ecology-ecosystems.mdx": {
+	id: "ecology-ecosystems.mdx";
+  slug: "ecology-ecosystems";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"electricalbasics.mdx": {
+	id: "electricalbasics.mdx";
+  slug: "electricalbasics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"electromagnetism.mdx": {
+	id: "electromagnetism.mdx";
+  slug: "electromagnetism";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"enviro-chem.mdx": {
+	id: "enviro-chem.mdx";
+  slug: "enviro-chem";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"example-template.mdx": {
+	id: "example-template.mdx";
+  slug: "example-template";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
 "fll-comp-pack.mdx": {
 	id: "fll-comp-pack.mdx";
   slug: "fll-comp-pack";
@@ -268,6 +450,230 @@ declare module 'astro:content' {
   collection: "careers";
   data: any
 } & { render(): Render[".mdx"] };
+"game-dev.mdx": {
+	id: "game-dev.mdx";
+  slug: "game-dev";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"geneticsandevo.mdx": {
+	id: "geneticsandevo.mdx";
+  slug: "geneticsandevo";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"human-aandp.mdx": {
+	id: "human-aandp.mdx";
+  slug: "human-aandp";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"human-body-systems.mdx": {
+	id: "human-body-systems.mdx";
+  slug: "human-body-systems";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"industrial-automation.mdx": {
+	id: "industrial-automation.mdx";
+  slug: "industrial-automation";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"innovation-product-dsgn.mdx": {
+	id: "innovation-product-dsgn.mdx";
+  slug: "innovation-product-dsgn";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"intro-data-science.mdx": {
+	id: "intro-data-science.mdx";
+  slug: "intro-data-science";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"intro-to-bio.mdx": {
+	id: "intro-to-bio.mdx";
+  slug: "intro-to-bio";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"intro-to-chem.mdx": {
+	id: "intro-to-chem.mdx";
+  slug: "intro-to-chem";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"intro-to-earth-science.mdx": {
+	id: "intro-to-earth-science.mdx";
+  slug: "intro-to-earth-science";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"intro-to-game-design.mdx": {
+	id: "intro-to-game-design.mdx";
+  slug: "intro-to-game-design";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"intro-to-iot.mdx": {
+	id: "intro-to-iot.mdx";
+  slug: "intro-to-iot";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"intro-to-robotics.mdx": {
+	id: "intro-to-robotics.mdx";
+  slug: "intro-to-robotics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"iot-in-industry.mdx": {
+	id: "iot-in-industry.mdx";
+  slug: "iot-in-industry";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"marketing-innovators.mdx": {
+	id: "marketing-innovators.mdx";
+  slug: "marketing-innovators";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"material-science.mdx": {
+	id: "material-science.mdx";
+  slug: "material-science";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"math-modeling.mdx": {
+	id: "math-modeling.mdx";
+  slug: "math-modeling";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"mechanics-motion.mdx": {
+	id: "mechanics-motion.mdx";
+  slug: "mechanics-motion";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"mechefundamentals.mdx": {
+	id: "mechefundamentals.mdx";
+  slug: "mechefundamentals";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"mixed-reality-apps.mdx": {
+	id: "mixed-reality-apps.mdx";
+  slug: "mixed-reality-apps";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"musculoskeletal-anatomy.mdx": {
+	id: "musculoskeletal-anatomy.mdx";
+  slug: "musculoskeletal-anatomy";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"neuroscience-basics.mdx": {
+	id: "neuroscience-basics.mdx";
+  slug: "neuroscience-basics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"ochem-basics.mdx": {
+	id: "ochem-basics.mdx";
+  slug: "ochem-basics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"physics-for-innovators.mdx": {
+	id: "physics-for-innovators.mdx";
+  slug: "physics-for-innovators";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"python-beginners.mdx": {
+	id: "python-beginners.mdx";
+  slug: "python-beginners";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"selfdriving-car-tech.mdx": {
+	id: "selfdriving-car-tech.mdx";
+  slug: "selfdriving-car-tech";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"smart-home-tech.mdx": {
+	id: "smart-home-tech.mdx";
+  slug: "smart-home-tech";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"space-mission.mdx": {
+	id: "space-mission.mdx";
+  slug: "space-mission";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"space-robotics.mdx": {
+	id: "space-robotics.mdx";
+  slug: "space-robotics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"startup-bootcamp.mdx": {
+	id: "startup-bootcamp.mdx";
+  slug: "startup-bootcamp";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"stats-data-science.mdx": {
+	id: "stats-data-science.mdx";
+  slug: "stats-data-science";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"steam-projects.mdx": {
+	id: "steam-projects.mdx";
+  slug: "steam-projects";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
 "vex-comp-pack.mdx": {
 	id: "vex-comp-pack.mdx";
   slug: "vex-comp-pack";
@@ -278,6 +684,27 @@ declare module 'astro:content' {
 "vex-learning-plan.mdx": {
 	id: "vex-learning-plan.mdx";
   slug: "vex-learning-plan";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"vr-basics.mdx": {
+	id: "vr-basics.mdx";
+  slug: "vr-basics";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"wearable-tech-dev.mdx": {
+	id: "wearable-tech-dev.mdx";
+  slug: "wearable-tech-dev";
+  body: string;
+  collection: "careers";
+  data: any
+} & { render(): Render[".mdx"] };
+"web-dev.mdx": {
+	id: "web-dev.mdx";
+  slug: "web-dev";
   body: string;
   collection: "careers";
   data: any
