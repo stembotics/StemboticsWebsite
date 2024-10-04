@@ -110,15 +110,16 @@ const customerSession = await stripe.customerSessions.create({
 let CLIENT_SECRET = (customerSession['client_secret']);
 
 let date = "";
-if (bestTimes == "thursday5pm7pm"){
-  date = "Thursday from 5 pm - 7 pm";
-} else if (bestTimes == "thursday7pm9pm"){
-  date = "Thursday from 7 pm - 9 pm";
+if (bestTimes == "thursday6pm8pm"){
+  date = "Thursday from 6 pm - 8 pm";
+} else if (bestTimes == "saturday3pm5pm"){
+  date = "Saturday from 3 pm - 5pm";
 } else if (bestTimes == "saturday5pm7pm"){
   date = "Saturday from 5 pm - 7 pm";
-} else if (bestTimes == "saturday7pm9pm"){
-  date = "Saturday from 5 pm - 9 pm";
 } 
+//  else if (bestTimes == "saturday7pm9pm"){
+//   date = "Saturday from 5 pm - 9 pm";
+// } 
 
 ---
 
