@@ -11,7 +11,7 @@ pricing_card:
     featured: false
     buttons:
       buy_now:
-        label: Enroll Now
+        label: Currently unavailable
         link: "/portal"
       free_trial:
         label: Learn More
@@ -26,7 +26,7 @@ pricing_card:
 
   - title: VEX IQ Competition Package
     pre_currency: $
-    post_currency: per Season
+    post_currency: per Month (4 months)
     price: 160
     icon: table #icon package react-feather-icon [https://feathericons.com/]
     description: Take your robotics skills to the next level! Prepare for VEX IQ competitions by learning advanced programming techniques, teamwork, and strategic thinking. VEX IQ Learning Plan Required. (ages 10+)
@@ -46,46 +46,6 @@ pricing_card:
         - Teamwork and communication skills
         - Experienced coaches and mentors
 
-  - title: FLL Learning Plan
-    pre_currency: $
-    post_currency: /Month
-    price: 100
-    icon: briefcase #icon package react-feather-icon [https://feathericons.com/]
-    description: Learn using the FIRST® LEGO® League (FLL) Challenge! Our comprehensive program helps teams design, build, and program robots while tackling real-world scientific challenges. (ages 9-16)
-    featured: false
-    buttons:
-      buy_now:
-        label: Enroll Now
-        link: "/portal"
-      free_trial:
-        label: Learn More
-        link: "/career/fll-learning-plan"
-    services:
-      title: What's included?
-      list:
-        - "One LEGO® Education SPIKE™ Prime Set"
-        - Robot design, construction, and programming
-        - Research and presentation development
-
-  - title: FLL Competition Package 
-    pre_currency: $
-    post_currency: per Season
-    price: 150
-    icon: briefcase #icon package react-feather-icon [https://feathericons.com/]
-    description: Compete in the FIRST® LEGO® League (FLL) Challenge! This allows your child to compete in real FLL challenges. FLL Learning Plan Required. (ages 9-16)
-    featured: true
-    buttons:
-      buy_now:
-        label: Enroll Now
-        link: "/portal"
-      free_trial:
-        label: Learn More
-        link: "career/fll-comp-pack"
-    services:
-      title: What's included?
-      list:
-        - "Registration for Competitions"
-        - "Team Registration"
 faq:
   title: Frequently Asked Questions
   description: Have a question about our programs? We've got answers!

@@ -167,6 +167,17 @@ if (bestTimes == "thursday6pm8pm"){
   </div>
         <div class="buy-buttons">
 
+
+          <script async
+  src="https://js.stripe.com/v3/buy-button.js">
+</script>
+
+<stripe-buy-button
+  buy-button-id="buy_btn_1Q6K54Bacad2NXeVaRZddFq3"
+  publishable-key="pk_live_51P6aVDBacad2NXeVAfq9rBWO21sJ8rVicoGsTRMfa5OvmUeZmhYucMgCXYkZhiUH6ga8oRIK03PcnmzCxyMpcRk000p9aWnmDw"
+  customer-session-client-secret=`${CLIENT_SECRET}`>
+  >
+</stripe-buy-button>
           <script async src="https://js.stripe.com/v3/buy-button.js"></script>
           {(!(products.includes("VEX IQ Plan")))&& 
           <stripe-buy-button
