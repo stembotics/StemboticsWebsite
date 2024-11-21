@@ -60,3 +60,4 @@ features:
     
 
 ---
+<h6>At Stembotics, we are a 501(c)(3) nonprofit organization dedicated to inspiring the next generation of innovators through hands-on STEM education. Our mission is to empower students with the skills and confidence to explore science, technology, engineering, and mathematics while fostering creativity and teamwork. <br><br>Through engaging programs, workshops, and community outreach, we aim to make STEM accessible to all, paving the way for a brighter, more innovative future.
