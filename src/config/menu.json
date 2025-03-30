@@ -21,8 +21,12 @@
       "url": "/volunteer"
     },
     {
-      "name": "Enrollment",
+      "name": "Portal",
       "url": "/portal"
+    },
+    {
+      "name": "Teachers",
+      "url": "/teachers"
     },
     {
       "name": "Contact",

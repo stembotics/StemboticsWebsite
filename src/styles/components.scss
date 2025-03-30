@@ -710,3 +710,38 @@ select:invalid {
     width: 100% !important;
   }
 }
+
+/* src/styles/tabs.css */
+.tabs {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  background: #f0f0f0;
+  cursor: pointer;
+  flex: 1; /* Makes tabs equal width */
+  text-align: center; /* Center align text */
+  transition: background 0.3s;
+}
+
+.tab.active {
+  background: #fff;
+  border-bottom: none;
+  font-weight: bold;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow effect */
+}
+
+.tab:hover {
+  background: #e0e0e0;
+}
+
+form {
+  margin-top: 20px;
+}
+
+h2 {
+  margin-bottom: 1rem; /* Space below the heading */
+}

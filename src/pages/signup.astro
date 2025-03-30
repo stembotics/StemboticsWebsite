@@ -5,50 +5,71 @@ import SigninSlider from "@/layouts/function-components/SigninSlider.jsx";
 import { Phone } from "react-feather";
 import Notice from "@/layouts/shortcodes/Notice.jsx"
 import Stripe from 'stripe';
+import { Input } from 'free-astro-components'
+import { turso } from '../turso'
+
+function parse(str) {
+    var args = [].slice.call(arguments, 1),
+        i = 0;
+
+    return str.replace(/%s/g, () => args[i++]);
+}
 
 const require = createRequire(import.meta.url);
 const stripe = new Stripe(import.meta.env.STRIPE_KEY);
-const errors = { username: "", email: "", password: "" };
+const errors = { username: "", email: "", password: "", usernameStatus: "default", emailStatus: "default", passwordStatus: "default"};
+
 
 if (Astro.request.method === 'POST') {
   // parse form data
   const formData = await Astro.request.formData();
   const name = formData.get('name'); // get the name field
-  const childName = formData.get('childName');
-  const childAge = formData.get('childAge');
   const tel = formData.get('tel');
   const email = formData.get('email');
   const password = formData.get('password');
-  const bestTimes = formData.get('bestTimes');
 
   if (typeof name !== "string" || name.length < 1) {
     errors.username += "Please enter a Name.";
+    errors.usernameStatus = "error";
   }
   if (typeof password !== "string" || password.length < 6) {
     errors.password += "Password must be at least 6 characters. ";
+    errors.passwordStatus = "error";
   }
-  
-
+  // const emailCount=1;
+  const { rows } = await turso.execute(parse("SELECT COUNT(*) AS count FROM Users WHERE email = '%s'", email));
+  const emailCount = rows[0].count; // Safely access count with optional chaining
+  console.log(emailCount);
   const customers = await stripe.customers.search({
     query: `email:\'${email}\'`,
   });
-  if (customers["data"].length ==0 ) { 
+  if (emailCount ==0 ) { 
+    console.log("check1");
     const customer = await stripe.customers.create({
       name: name,
       email: email,
-      phone: tel,
+      phone: tel
+    });
+    // console.log(customer['id'])
+
+    const { rows: parentResult } = await turso.execute({
+      sql: 'INSERT INTO Users (customer_name, email, phone_number, password_hash, stripe_customer_id) VALUES (?, ?, ?, ?, ?) RETURNING user_id',
+      args: [`${name}`, `${email}`, `+1${tel}`, `${password}`, `${customer['id']}`], // Wrapped in quotes
+    });
+
+    const parentId = parentResult[0].user_id; // Safely access count with optional chaining
+    // console.log(parentId)
+    await stripe.customers.update(customer['id'], {
       metadata: {
-        childName: childName,
-        childAge: childAge,
-        password: password,
-        bestTimes: bestTimes,
+        ...customer.metadata, // Keep existing metadata
+        UserID: parentId.toString(), // Update or add ParentID
       },
     });
-    console.log(customer['id'])
     Astro.cookies.set("id",customer['id'])
     return Astro.redirect("/portal")
   } else{
     errors.email += "Email is already registered.";
+    errors.emailStatus = "error"
   }
 }
 
@@ -82,64 +103,34 @@ if (Astro.request.method === 'POST') {
               <br>
               <div class="form-group">
                 <label for="name" class="form-label text-black">Full Name</label>
-                <input
+                <Input
                   type="text"
                   id="name"
                   name="name"
                   class="form-control"
                   placeholder="Your Full Name"
-                  required
-                />
-                {errors.username && <Notice type="warning">{errors.username}</Notice>}
-              </div>
-              <br>
-              <div class="form-group">
-                <label for="childName" class="form-label text-black">Child's Full Name</label>
-                <input
-                  type="text"
-                  id="childName"
-                  name="childName"
-                  class="form-control"
-                  placeholder="Your Child's Full Name"
+                  status = {errors.usernameStatus}
+                  helperText = {errors.username}
                   required
                 />
               </div>
-              <br>
-              <div class="form-group">
-                <label for="childAge" class="form-label text-black">Child Age</label>
-                <input
-                  type="number"
-                  id="childAge"
-                  name="childAge"
-                  class="form-control"
-                  placeholder="Your Child's Age"
-                  required
-                />
-              </div><br>
-              <div class="form-group mb-5">
-                <label class="form-label text-black" for="bestTimes">Best Times for Classes</label>
-                <select name="bestTimes" id="bestTimes" class="form-select" required>
-                  <option value="thursday6pm8pm">Thursday 5 pm - 7 pm</option>
-                  <option value="saturday3pm5pm">Saturday 3 pm - 5 pm</option>
-                  <option value="saturday5pm7pm">Saturday 5 pm - 7 pm</option>
-                </select>
-              </div>
-              <br>
+
               <div class="form-group mt-4">
                 <label for="email" class="form-label text-black">Email Address</label>
-                <input
+                <Input
                   type="email"
                   id="email"
                   name="email"
                   class="form-control"
                   placeholder="Your Email Address"
+                  status = {errors.emailStatus}
+                  helperText = {errors.email}
                   required
                 />
-                {errors.email && <Notice type="warning">{errors.email} Please <a href='/signin'>Sign In</a></Notice>}
               </div>
               <div class="form-group mt-4">
                 <label for="tel" class="form-label text-black">Phone No.</label>
-                <input
+                <Input
                   type="tel"
                   id="tel"
                   name="tel"
@@ -148,19 +139,19 @@ if (Astro.request.method === 'POST') {
                   required
                 />
               </div>
-              <br>
               <div class="form-group mt-4">
                 <label for="password" class="form-label text-black">Password</label>
-                <input
+                <Input
                   type="password"
                   minlength="6"
                   id="password"
                   name="password"
                   class="form-control"
                   placeholder="Your Password"
+                  status = {errors.passwordStatus}
+                  helperText = {errors.password}
                   required
                 />
-                {errors.password && <Notice type="warning">{errors.password}</Notice>}
 
               </div>
               <input

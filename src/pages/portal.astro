@@ -1,7 +1,7 @@
 ---
 import PageHeader from "@/components/PageHeader.astro";
 import Shape from "@/components/Shape.astro";
-import { createRequire } from 'module';
+import { createRequire } from "module";
 import CounterComponent from "@/components/about/CounterComponent.astro";
 import Gallery from "@/components/about/Gallery.astro";
 import OurMembers from "@/components/about/OurMembers.astro";
@@ -10,50 +10,85 @@ import Base from "@/layouts/Base.astro";
 import { getEntryBySlug } from "astro:content";
 import Notice from "@/shortcodes/Notice";
 import type { plainify } from "@/lib/utils/textConverter";
-import Stripe from 'stripe';
+import Stripe from "stripe";
+import AddChild from "../components/AddChild";
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Select,
+  TabItem,
+  Tab,
+} from "free-astro-components";
 
-const require = createRequire(import.meta.url);
+import { turso } from "@/turso";
+import { AiOutlineArrowRight } from "react-icons/ai";
+import RegisterChild from "@/components/RegisterChild";
+import ViewClasses from "@/components/ViewClasses";
+
+function getNextClassDate(dayId) {
+  const today = new Date();
+  const currentDay = today.getDay(); // Today's day of the week (0-6)
+  // console.log(currentDay)
+  // Calculate the difference in days until the next class day
+  const daysUntilNextClass = (dayId - currentDay + 7) % 7 || 7; // Default to 7 if same day
+  // console.log(daysUntilNextClass)
+  // Calculate the next class date
+  const nextClassDate = new Date(today);
+  nextClassDate.setDate(today.getDate() + daysUntilNextClass);
+
+  return nextClassDate;
+}
 
 const stripe = new Stripe(import.meta.env.STRIPE_KEY);
 // `${import.meta.env.STRIPE_KEY}`
 
 let customer_name = 'customer["name"]';
 let customer_email = 'customer["email"]';
-let customer_phone =' customer["phone"]';
-let bestTimes =' customer["phone"]';
+let customer_phone = ' customer["phone"]';
+let bestTimes = ' customer["phone"]';
 let child_name = "customer['metadata']['childName']";
 let child_age = 9;
+let user_id = 27;
 
-let id;
-// Astro.cookies.set("id", "cus_QBxZrNkD7rRh2r");
+let id = 0;
 
 if (Astro.cookies.has("id")) {
   id = Astro.cookies.get("id");
-  if (id?.value !=="ADMIN") {
-    const customer = await stripe.customers.retrieve(id?.value);
-    customer_name = customer["name"];
-    customer_email = customer["email"];
-    customer_phone = customer["phone"];
-    child_name = customer['metadata']['childName'];
-    bestTimes = customer['metadata']['bestTimes'];
-    child_age = parseInt(customer['metadata']['childAge']);
-  }else{return Astro.redirect("/admin")}
-} else{
-  return Astro.redirect("/signup")
+
+  if (id?.value !== "ADMIN") {
+    const { rows } = await turso.execute({
+      sql: "select * FROM Users WHERE stripe_customer_id = ?",
+      args: [id?.value],
+    });
+    let data = rows[0];
+    // console.log(rows)
+    customer_name = data.customer_name;
+    customer_email = data.email;
+    customer_phone = data.phone_number;
+    user_id = data.user_id;
+    Astro.cookies.set("user_id", user_id);
+  } else {
+    return Astro.redirect("/admin");
+  }
+} else {
+  return Astro.redirect("/signin");
 }
 const session = await stripe.billingPortal.sessions.create({
-    customer: `${id?.value}`,
-    return_url: 'https://stembotics.org/portal',
-  });
+  customer: `${id?.value}`,
+  return_url: "https://stembotics.org/portal",
+});
 const plink = session["url"];
 const portal = await getEntryBySlug("portal", "index");
 const { counter, gallery, features } = portal.data;
 let dataString = JSON.stringify(portal.data);
-let pBody = dataString.replaceAll('customer_name', customer_name);
-pBody = pBody.replaceAll('customer_email', customer_email);
-pBody = pBody.replaceAll('customer_phone', customer_phone);
-pBody = pBody.replaceAll('child_name', child_name); // Handle missing metadata gracefully
-pBody = pBody.replaceAll('child_age', child_age.toString());
+let pBody = dataString.replaceAll("customer_name", customer_name);
+pBody = pBody.replaceAll("customer_email", customer_email);
+pBody = pBody.replaceAll("customer_phone", customer_phone);
+pBody = pBody.replaceAll("child_name", child_name); // Handle missing metadata gracefully
+pBody = pBody.replaceAll("child_age", child_age.toString());
 // console.log(pBody);
 const page_data = {
   ...JSON.parse(pBody),
@@ -61,17 +96,17 @@ const page_data = {
 };
 
 const subscriptions = await stripe.subscriptions.search({
-  query: 'status:\'active\'',
+  query: "status:'active'",
 });
-const subData = subscriptions['data']
-const custSubs = []
-let planid = ""
+const subData = subscriptions["data"];
+const custSubs = [];
+let planid = "";
 let products = "";
-console.log(subData);
-for (let i =0; i < subData.length; i++) {
-  if (subData[i].customer == id?.value){
+// console.log(subData);
+for (let i = 0; i < subData.length; i++) {
+  if (subData[i].customer == id?.value) {
     custSubs.push(subData[i]);
-    planid = subData[i]["plan"]['id']
+    planid = subData[i]["plan"]["id"];
     const plan = await stripe.plans.retrieve(planid);
     const prodid = plan.product?.toString();
     const product = await stripe.products.retrieve(prodid);
@@ -79,24 +114,20 @@ for (let i =0; i < subData.length; i++) {
   }
 }
 
-// console.log(id?.value);
-// console.log(subData);
 // console.log(custSubs);
 const paymentIntents = await stripe.paymentIntents.list({
-  customer:id?.value,
+  customer: id?.value,
   limit: 10,
 });
 // console.log(products)
-const intentData = paymentIntents['data'];
+const intentData = paymentIntents["data"];
 for (let i = 0; i < intentData.length; i++) {
-  if (intentData[i]['amount']==16000){
+  if (intentData[i]["amount"] == 16000) {
     products = products + "vexComp;";
-  } else if (intentData[i]['amount']==15000){
+  } else if (intentData[i]["amount"] == 15000) {
     products = products + "fllComp;";
-  } 
+  }
 }
-
-
 
 const customerSession = await stripe.customerSessions.create({
   customer: `${id?.value}`,
@@ -107,22 +138,89 @@ const customerSession = await stripe.customerSessions.create({
   },
 });
 // let CLIENT_SECRET = 'cuss_secret_Q8YVe6RwmTbnrEdTZ5om7LUYd9LMiDQBxuR0XNDelt1TYe8'
-let CLIENT_SECRET = (customerSession['client_secret']);
+let CLIENT_SECRET = customerSession["client_secret"];
 
 let date = "";
-if (bestTimes == "thursday6pm8pm"){
+if (bestTimes == "thursday6pm8pm") {
   date = "Thursday from 6 pm - 8 pm";
-} else if (bestTimes == "saturday3pm5pm"){
+} else if (bestTimes == "saturday3pm5pm") {
   date = "Saturday from 3 pm - 5pm";
-} else if (bestTimes == "saturday5pm7pm"){
+} else if (bestTimes == "saturday5pm7pm") {
   date = "Saturday from 5 pm - 7 pm";
-} 
+}
 //  else if (bestTimes == "saturday7pm9pm"){
 //   date = "Saturday from 5 pm - 9 pm";
-// } 
+// }
 
+const { rows } = await turso.execute({
+  sql: "select * FROM Children WHERE child_id in (select child_id FROM UserChildren WHERE user_id = (select user_id FROM Users WHERE stripe_customer_id = ?))",
+  args: [id?.value],
+});
+
+const { rows: courses } = await turso.execute("SELECT * FROM Courses");
+
+// Step 1: Query all child IDs and their courses
+
+const { rows: childCoursesData } =
+  await turso.execute(`SELECT 
+    ChildCourses.child_id, 
+    Courses.*, 
+    Teachers.first_name AS teacher_first_name, 
+    Teachers.last_name AS teacher_last_name, 
+    Teachers.email AS teacher_email
+FROM ChildCourses
+JOIN Courses ON ChildCourses.course_id = Courses.id
+JOIN CourseTeachers ON Courses.id = CourseTeachers.course_id  -- Linking courses to teachers
+JOIN Teachers ON CourseTeachers.teacher_id = Teachers.teacher_id;`);
+// console.log(childCoursesData);
+// Step 2: Initialize empty dictionaries for courses and tabs
+const childCoursesDict = {};
+const childTabs = {};
+
+// Step 3: Populate the dictionaries
+childCoursesData.forEach((row, index) => {
+  let { child_id, course_name, ...course } = row; // Extract child_id, course_name, and course details
+  // Initialize an array for the child if it doesn't exist in the dictionaries
+  if (!childCoursesDict[child_id]) {
+    childCoursesDict[child_id] = [];
+  }
+  if (!childTabs[child_id]) {
+    childTabs[child_id] = [];
+  }
+
+  // Add the course to childCoursesDict
+  childCoursesDict[child_id].push(course);
+
+  // Create tab object with `label` and `active` keys
+  const tab = {
+    label: course.name,
+    active: childTabs[child_id].length === 0, // Set 'active' to true only for the first course
+  };
+
+  // Add the tab object to childTabs
+  childTabs[child_id].push(tab);
+});
+
+console.log("childCoursesDict:", childCoursesDict);
+console.log("childTabs:", childTabs);
 ---
 
+<style>
+  .section {
+    padding-top: 0%;
+  }
+  :root {
+    --ac-primary: 68, 159, 102; /* New primary color */
+    --ac-secondary: 213, 98, 251; /* New secondary color */
+    --ac-dark: 33, 33, 33; /* New dark color */
+    --ac-gray-100: 240, 240, 240; /* New light gray */
+    --ac-gray-200: 200, 200, 200; /* New medium gray */
+    --ac-gray-300: 160, 160, 160; /* New dark gray */
+    --ac-success: 0, 200, 0; /* New success color */
+    --ac-warning: 255, 220, 0; /* New warning color */
+    --ac-danger: 255, 50, 50; /* New danger color */
+  }
+</style>
 <Base
   title={portal.data.title}
   meta_title={portal.data.meta_title}
@@ -130,106 +228,142 @@ if (bestTimes == "thursday6pm8pm"){
   image={portal.data.image}
 >
   <Shape />
-  <section class="page-hero py-16">
+  <section class="page-hero py-1">
     <div class="container">
-
       <div class="page-hero-content mx-auto max-w-[768px] text-center">
         <PageHeader page_data={page_data} />
-        
-      {((products.includes("VEX IQ Plan")))&& <Notice type="note">Congratulations! {child_name} is registered in the VEX Learning plan, you now have access to the VEX Competition Plan. <a class="text-black" href="https://docs.google.com/spreadsheets/d/1Eu3as98oDpum2poeEGtB4c2cJXKcdIinRPOWN4dRd9I/edit?usp=sharing">Click for the Curriculum</a></Notice>}
-      {((products.includes("FLL Plan")))&& <Notice type="note">Congratulations! {child_name} is registered in the FLL Learning plan, you now have access to the FLL Competition Plan.</Notice>}
-      {((products.includes("vexComp")))&& <Notice type="note">Congratulations! {child_name} is registered in the VEX Competition plan.</Notice>}
-      {((products.includes("fllComp")))&& <Notice type="note">Congratulations! {child_name} is registered in the FLL Competition plan.</Notice>}
-      {(!(products.includes("VEX IQ Plan"))&&!(products.includes("FLL Plan")))&& <Notice type="note">Unfortunately {child_name} isn't registered in anything, to get access to the Competition Packages, register for a Learning plan.</Notice>}
-
-        <p>Your next class starts on the next {date} after June 1st, 2024.</p>
-        <a class="btn btn-primary mt-6" href='https://meet.google.com/vpz-fcif-bvu'>
-          Join Google Meet
-        </a>
-        <br>
       </div>
-      <!-- benifit -->
-
-      <div class="page-hero-content mx-auto max-w-[768px] text-center">
-        <h2>Available programs for {child_name}</h2>
-        <p>Choose the program that best suits your needs</p>
-
-        {!((child_age>=9) && (child_age<=14)) &&     <Notice type="warning">{child_name} is not eligible for any of our programs right now. Sorry!</Notice>      }
-        <div class="mt-11 justify-center sm:flex">
-        
-          <a
-            class="btn m-3 block sm:inline-block"
-            href= `${plink}`
-          >
-            Manage Billing
-          </a>
-        
-  </div>
-        <div class="buy-buttons">
-
-
-          <script async
-  src="https://js.stripe.com/v3/buy-button.js">
-</script>
-
-<stripe-buy-button
-  buy-button-id="buy_btn_1Q6K54Bacad2NXeVaRZddFq3"
-  publishable-key="pk_live_51P6aVDBacad2NXeVAfq9rBWO21sJ8rVicoGsTRMfa5OvmUeZmhYucMgCXYkZhiUH6ga8oRIK03PcnmzCxyMpcRk000p9aWnmDw"
-  customer-session-client-secret=`${CLIENT_SECRET}`>
-  >
-</stripe-buy-button>
-          <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-          {(!(products.includes("VEX IQ Plan")))&& 
-          <stripe-buy-button
-            buy-button-id="buy_btn_1PQvfaBacad2NXeVDy4OeBBx"
-            publishable-key="pk_live_51P6aVDBacad2NXeVAfq9rBWO21sJ8rVicoGsTRMfa5OvmUeZmhYucMgCXYkZhiUH6ga8oRIK03PcnmzCxyMpcRk000p9aWnmDw"
-            customer-session-client-secret=`${CLIENT_SECRET}`>
-          </stripe-buy-button>
-        }
-
-
-          <script async
-  src="https://js.stripe.com/v3/buy-button.js">
-</script>
-
-{((products.includes("VEX IQ Plan")))&& 
-<stripe-buy-button
-  buy-button-id="buy_btn_1PIHohBacad2NXeVEWslv6sw"
-  publishable-key="pk_live_51P6aVDBacad2NXeVAfq9rBWO21sJ8rVicoGsTRMfa5OvmUeZmhYucMgCXYkZhiUH6ga8oRIK03PcnmzCxyMpcRk000p9aWnmDw"
-  customer-session-client-secret = `${CLIENT_SECRET}`
-  >
-</stripe-buy-button>
-}
-      
-          <script async
-            src="https://js.stripe.com/v3/buy-button.js">
-          </script>
-          
-          
-          
-          {(!(products.includes("FLL Plan")))&& 
-          <stripe-buy-button
-            buy-button-id="buy_btn_1PQvdyBacad2NXeVFHqgZcF6"
-            publishable-key="pk_live_51P6aVDBacad2NXeVAfq9rBWO21sJ8rVicoGsTRMfa5OvmUeZmhYucMgCXYkZhiUH6ga8oRIK03PcnmzCxyMpcRk000p9aWnmDw"
-            customer-session-client-secret=`${CLIENT_SECRET}`
-            >
-          </stripe-buy-button>}
-                      <script async
-              src="https://js.stripe.com/v3/buy-button.js">
-            </script>
-
-{((products.includes("FLL Plan")))&& 
-<stripe-buy-button
-  buy-button-id="buy_btn_1PIHoCBacad2NXeV7kbhwxVT"
-  publishable-key="pk_live_51P6aVDBacad2NXeVAfq9rBWO21sJ8rVicoGsTRMfa5OvmUeZmhYucMgCXYkZhiUH6ga8oRIK03PcnmzCxyMpcRk000p9aWnmDw" 
-  customer-session-client-secret=`${CLIENT_SECRET}`
->
-</stripe-buy-button>
-}
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="row">
+        <div class="mx-auto text-center lg:col-8">
+          <h2>Parent Portal</h2>
+          <p>If the buttons below are not working please reload</p>
+          <p class="mt-4"></p>
+          <Button label="Add a Child" data-modal-trigger="modal-add-child" />
         </div>
       </div>
-      
-<br>
+      <div class="row mt-12">
+        {
+          rows.map((child) => (
+            <div class="mb-8 md:col-6">
+              <div class="rounded-xl bg-white p-5 shadow-lg lg:p-10">
+                <h3 class="h4">
+                  {child.first_name}&nbsp{child.last_name}
+                </h3>
+                {/* <p class="p">{child.birth_date}</p> */}
+                <ul class="mt-6 flex flex-wrap items-center text-dark">
+                  <li class="my-1 mr-8 inline-flex items-center">
+                    <svg
+                      class="mr-1"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7.65217 0C3.42496 0 0 3.58065 0 8C0 12.4194 3.42496 16 7.65217 16C11.8794 16 15.3043 12.4194 15.3043 8C15.3043 3.58065 11.8794 0 7.65217 0ZM7.65217 14.4516C4.24264 14.4516 1.48107 11.5645 1.48107 8C1.48107 4.43548 4.24264 1.54839 7.65217 1.54839C11.0617 1.54839 13.8233 4.43548 13.8233 8C13.8233 11.5645 11.0617 14.4516 7.65217 14.4516ZM9.55905 11.0839L6.93941 9.09355C6.84376 9.01935 6.78822 8.90323 6.78822 8.78065V3.48387C6.78822 3.27097 6.95484 3.09677 7.15849 3.09677H8.14586C8.34951 3.09677 8.51613 3.27097 8.51613 3.48387V8.05484L10.5773 9.62258C10.7439 9.74839 10.7778 9.99032 10.6575 10.1645L10.0774 11C9.95708 11.171 9.72567 11.2097 9.55905 11.0839Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    {child.birth_date}
+                  </li>
+
+                  <li class="my-1 items-center inline-flex flex flex-wrap gap-4">
+                    <Button
+                      label="Register your child"
+                      data-modal-trigger={"modal-register-" + child.first_name}
+                    />
+                    <Button
+                      label="View Current Classes"
+                      data-modal-trigger={
+                        "modal-view-classes-" + child.first_name
+                      }
+                    />
+                  </li>
+                </ul>
+              </div>
+            </div>
+          ))
+        }
+      </div>
     </div>
+  </section>
+  {
+    rows.map((child) => (
+      <>
+        <Modal id={"modal-register-" + child.first_name} size="3xl">
+          <ModalHeader>
+            <h4>Register {child.first_name}</h4>
+          </ModalHeader>
+          <ModalBody>
+            <RegisterChild
+              user_id={user_id}
+              child_id={child.child_id}
+              courses={courses}
+              client_secret={CLIENT_SECRET}
+              client:load
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button label="Close" data-modal-close />
+          </ModalFooter>
+        </Modal>
+        <Modal id={"modal-view-classes-" + child.first_name} size="3xl">
+          <ModalHeader>
+            <h4>{child.first_name}'s Current Classes</h4>
+          </ModalHeader>
+          <ModalBody>
+            {/* Check if the child has any courses */}
+            {childCoursesDict[child.child_id] &&
+            childCoursesDict[child.child_id].length > 0 ? (
+              <Tab tabs={childTabs[child.child_id]}>
+                {childCoursesDict[child.child_id].map((course) => (
+                  <TabItem key={course.id} active>
+                    <h4>{course.name}</h4>
+                    <p>{course.description}</p>
+                    <br />
+                    <p>Location: {course.location}</p>
+                    <p>
+                      Next Class Date:{" "}
+                      {getNextClassDate(course.day_id).toDateString()}
+                    </p>
+                    <br>
+                    <p>Teacher Name: {course.teacher_first_name} {" "}{course.teacher_last_name}</p>
+                    <p>Teacher Email: {course.teacher_email} </p>
+                  </TabItem>
+                ))}
+              </Tab>
+            ) : (
+              <p>
+                {child.first_name} is not currently enrolled in any classes.
+              </p>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button label="Close" data-modal-close />
+          </ModalFooter>
+        </Modal>
+      </>
+    ))
+  }
+
+  <Modal id="modal-add-child" size="3xl">
+    <ModalHeader>
+      <h4>Add a Child</h4>
+    </ModalHeader>
+    <ModalBody>
+      <AddChild user_id={user_id} client:load />
+    </ModalBody>
+    <ModalFooter>
+      <Button label="Close" data-modal-close />
+    </ModalFooter>
+  </Modal>
+
+  <section class="tab-section py-16">
+    <div class="container"></div>
   </section>
 </Base>

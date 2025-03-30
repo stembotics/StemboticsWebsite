@@ -1,0 +1,282 @@
+---
+import PageHeader from "@/components/PageHeader.astro";
+import Shape from "@/components/Shape.astro";
+import { createRequire } from 'module';
+import CounterComponent from "@/components/about/CounterComponent.astro";
+import Gallery from "@/components/about/Gallery.astro";
+import OurMembers from "@/components/about/OurMembers.astro";
+import Works from "@/components/about/Works.astro";
+import Base from "@/layouts/Base.astro";
+import { getEntryBySlug } from "astro:content";
+import Notice from "@/shortcodes/Notice";
+import type { plainify } from "@/lib/utils/textConverter";
+import Stripe from 'stripe';
+import AddChild from "@/components/AddChild"
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Select, Accordion, AccordionItem } from 'free-astro-components'
+import { Table } from 'webcoreui/astro'
+import { turso } from "@/turso";
+import { AiOutlineArrowRight } from "react-icons/ai";
+import AddCourse from "@/components/AddCourse";
+
+const require = createRequire(import.meta.url);
+
+// `${import.meta.env.STRIPE_KEY}`
+
+let customer_name = 'customer["name"]';
+let customer_email = 'customer["email"]';
+let customer_phone =' customer["phone"]';
+let bestTimes =' customer["phone"]';
+let child_name = "customer['metadata']['childName']";
+let child_age = 9;
+let teacher_id = 27;
+
+let id;
+
+if (Astro.cookies.has("teacher_id")) {
+  id = Astro.cookies.get("teacher_id");
+
+  if (id?.value !=="ADMIN") {
+    const { rows } = await turso.execute({
+      sql: 'select * FROM Teachers WHERE teacher_id = ?',
+      args: [id?.value]
+    });
+    let data = rows[0]
+    customer_name = data.first_name;
+    customer_email = data.email;
+    teacher_id = data.teacher_id;
+  }else{return Astro.redirect("/admin")}
+} else{
+  return Astro.redirect("/signin")
+}
+
+const portal = await getEntryBySlug("teachers", "portal");
+const { counter, gallery, features } = portal.data;
+let dataString = JSON.stringify(portal.data);
+let pBody = dataString.replaceAll('customer_name', customer_name);
+pBody = pBody.replaceAll('customer_email', customer_email);
+pBody = pBody.replaceAll('child_name', child_name); // Handle missing metadata gracefully
+pBody = pBody.replaceAll('child_age', child_age.toString());
+// console.log(pBody);
+const page_data = {
+  ...JSON.parse(pBody),
+  content: portal.body,
+};
+
+const { rows } = await turso.execute({
+  sql: 'select * FROM Courses WHERE id in (select course_id FROM CourseTeachers WHERE teacher_id = ?)',
+  args: [teacher_id]
+});
+// console.log(rows);
+
+
+// Fetch student data, including parent's information, for teachers to view
+const coursesDict = {};
+
+// Loop through each course_id in the courses list
+for (let course of rows) {
+  const { rows: studentsData } = await turso.execute({
+    sql: `
+    SELECT 
+        Children.child_id,
+        Children.first_name AS child_name,
+        Children.last_name AS child_last_name,
+        Children.birth_date,
+        Users.customer_name AS parent_name,
+        Users.email AS parent_email,
+        ChildCourses.course_id
+    FROM 
+        Children
+    JOIN 
+        UserChildren ON Children.child_id = UserChildren.child_id
+    JOIN 
+        Users ON UserChildren.user_id = Users.user_id
+    JOIN 
+        ChildCourses ON Children.child_id = ChildCourses.child_id
+    WHERE 
+        ChildCourses.course_id = ?;
+    `,
+    args: [course.id]  // Pass the current course_id as an argument
+  });
+  console.log(studentsData)
+
+  // Initialize the list for the current course_id if it doesn't exist yet
+  if (!coursesDict[course.id]) {
+    coursesDict[course.id] = [];
+  }
+
+  // Process each student and add them to the list for the current course_id
+  studentsData.forEach((row) => {
+    const { child_name, child_last_name, birth_date, parent_name, parent_email } = row;
+
+    // Calculate age from birth_date
+    const birthDate = new Date(birth_date);
+    const age = new Date().getFullYear() - birthDate.getFullYear();
+
+    // Create full name
+    const fullName = child_name + ' ' + child_last_name;
+
+    // Ensure the course entry exists
+    if (!coursesDict[course.id]) {
+        coursesDict[course.id] = [];
+    }
+
+    // Check if the student already exists in the course
+    const existingStudent = coursesDict[course.id].some(student => student[0] === fullName);
+
+    if (!existingStudent) {
+        // Represent each student as an array
+        const student = [fullName, age, parent_name, parent_email];
+
+        // Add student to the course's list
+        coursesDict[course.id].push(student);
+    }
+});
+}
+console.log(coursesDict)
+---
+<style>
+.section {
+  padding-top: 0%;
+}
+:root {
+  --ac-primary: 68, 159, 102; /* New primary color */
+  --ac-secondary: 213, 98, 251; /* New secondary color */
+  --ac-dark: 33, 33, 33; /* New dark color */
+  --ac-gray-100: 240, 240, 240; /* New light gray */
+  --ac-gray-200: 200, 200, 200; /* New medium gray */
+  --ac-gray-300: 160, 160, 160; /* New dark gray */
+  --ac-success: 0, 200, 0; /* New success color */
+  --ac-warning: 255, 220, 0; /* New warning color */
+  --ac-danger: 255, 50, 50; /* New danger color */
+}
+</style>
+<Base
+      title={portal.data.title}
+      meta_title={portal.data.meta_title}
+      description={portal.data.description}
+      image={portal.data.image}
+    >
+      <Shape />
+      <section class="page-hero py-1">
+        <div class="container">
+          <div class="page-hero-content mx-auto max-w-[768px] text-center">
+            <PageHeader page_data={page_data} />
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container">
+          <div class="row">
+            <div class="mx-auto text-center lg:col-8">
+              <h2>Your Courses</h2>
+              <p>If the buttons below are not working please reload</p>
+
+              <p
+                class="mt-4"
+              />
+              <Button label="Add a Course" data-modal-trigger="modal-add-course" />
+
+            </div>
+          </div>
+          <div class="row mt-12">
+            {rows.map((course) => (
+                <div class="mb-8 md:col-6">
+                  <div class="rounded-xl bg-white p-5 shadow-lg lg:p-10">
+                    <h3 class="h4">{course.name}</h3>
+                    {/* <p class="p">{child.birth_date}</p> */}
+                    <ul class="mt-6 flex flex-wrap items-center text-dark">
+                      <li class="my-1 mr-8 inline-flex items-center">
+                        <svg
+                          class="mr-1"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7.65217 0C3.42496 0 0 3.58065 0 8C0 12.4194 3.42496 16 7.65217 16C11.8794 16 15.3043 12.4194 15.3043 8C15.3043 3.58065 11.8794 0 7.65217 0ZM7.65217 14.4516C4.24264 14.4516 1.48107 11.5645 1.48107 8C1.48107 4.43548 4.24264 1.54839 7.65217 1.54839C11.0617 1.54839 13.8233 4.43548 13.8233 8C13.8233 11.5645 11.0617 14.4516 7.65217 14.4516ZM9.55905 11.0839L6.93941 9.09355C6.84376 9.01935 6.78822 8.90323 6.78822 8.78065V3.48387C6.78822 3.27097 6.95484 3.09677 7.15849 3.09677H8.14586C8.34951 3.09677 8.51613 3.27097 8.51613 3.48387V8.05484L10.5773 9.62258C10.7439 9.74839 10.7778 9.99032 10.6575 10.1645L10.0774 11C9.95708 11.171 9.72567 11.2097 9.55905 11.0839Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        {course.start_date}
+                      </li>
+                      
+                      <li class="my-1 items-center inline-flex flex flex-wrap gap-4">
+                        <Button label="View Members" data-modal-trigger={"modal-view-members-" + course.id} />
+                        <Button label="Delete Course" data-modal-trigger={"modal-delete-course-" + course.id} />
+                        
+                      </li>
+                    </ul>
+                    
+                  </div>
+                </div>
+              ))}
+               
+            </div>
+          </div>
+        </section>
+        {rows.map((course) => (
+          <Modal id={"modal-view-members-" + course.id} size='3xl'>
+            <ModalHeader>
+              <h4>View {course.name} members</h4>
+            </ModalHeader>
+            <ModalBody>
+              <h3>Student Roster: </h3>
+              <br>
+                {coursesDict[course.id] && coursesDict[course.id].length > 0 ? (
+                  // <p>{coursesDict[course.id]}</p>
+                  <Accordion>
+                    {coursesDict[course.id].map((child) => (
+                    // <AccordionItem title= {child[0]} >
+                      <h4>{child[0]}</h4>
+                      <p>Age: {child[1]}</p>
+                      <p>Parent Name: {child[2]}</p>
+                      <p>Parent Email: {child[3]}</p>
+
+                      <br />
+                    // </AccordionItem>
+                    ))}
+                  </Accordion>
+
+                ) : (
+                  <p>No children are currently enrolled in {course.name}.</p>
+                )}
+            </ModalBody>
+            <ModalFooter>
+              <Button label="Close" data-modal-close />
+            </ModalFooter>
+          </Modal>
+  
+          <Modal id={"modal-delete-course-"+course.id} size='3xl'>
+            <ModalHeader>
+              <h4>{course.name} Delete</h4>
+            </ModalHeader>
+            <ModalBody>
+              <p>
+                Please email info@stembotics.org
+              </p>
+            </ModalBody>
+            <ModalFooter>
+              <Button label="Close" data-modal-close />
+            </ModalFooter>
+          </Modal>
+        ))}
+
+      <Modal id="modal-add-course" size='3xl'>
+          <ModalHeader>
+            <h4>Add a Course</h4>
+          </ModalHeader>
+          <ModalBody>
+            <AddCourse teacher_id={teacher_id} client:load />
+          </ModalBody>
+          <ModalFooter>
+            <Button label="Close" data-modal-close />
+          </ModalFooter>
+        </Modal>
+
+      <section class="tab-section py-16">
+        <div class="container">
+        </div>
+      </section>
+    </Base>

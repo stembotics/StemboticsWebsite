@@ -1,0 +1,106 @@
+---
+import PageHeader from "@/components/PageHeader.astro";
+import Shape from "@/components/Shape.astro";
+import { createRequire } from 'module';
+import CounterComponent from "@/components/about/CounterComponent.astro";
+import Gallery from "@/components/about/Gallery.astro";
+import OurMembers from "@/components/about/OurMembers.astro";
+import Works from "@/components/about/Works.astro";
+import Base from "@/layouts/Base.astro";
+import { getEntryBySlug } from "astro:content";
+import Notice from "@/shortcodes/Notice";
+import type { plainify } from "@/lib/utils/textConverter";
+import Stripe from 'stripe';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Select } from 'free-astro-components'
+
+
+import { turso } from "@/turso";
+import { AiOutlineArrowRight } from "react-icons/ai";
+import AddTeacher from "@/components/AddTeacher";
+
+const require = createRequire(import.meta.url);
+const teachers = await getEntryBySlug("teachers", "index");
+const { counter, gallery, features } = teachers.data;
+let dataString = JSON.stringify(teachers.data);
+let pBody = dataString;
+// console.log(pBody);
+const page_data = {
+  ...JSON.parse(pBody),
+  content: teachers.body,
+};
+
+---
+<style>
+    .section {
+      padding-top: 0%;
+    }
+    :root {
+      --ac-primary: 68, 159, 102; /* New primary color */
+      --ac-secondary: 213, 98, 251; /* New secondary color */
+      --ac-dark: 33, 33, 33; /* New dark color */
+      --ac-gray-100: 240, 240, 240; /* New light gray */
+      --ac-gray-200: 200, 200, 200; /* New medium gray */
+      --ac-gray-300: 160, 160, 160; /* New dark gray */
+      --ac-success: 0, 200, 0; /* New success color */
+      --ac-warning: 255, 220, 0; /* New warning color */
+      --ac-danger: 255, 50, 50; /* New danger color */
+    }
+    .w-half {
+        width: 50%;
+    }
+    .mx-custom {
+        margin-left: 25%;
+        margin-right: 25%;
+    }
+    </style>
+    <Base
+          title={teachers.data.title}
+          meta_title={teachers.data.meta_title}
+          description={teachers.data.description}
+          image={teachers.data.image}
+        >
+          <Shape />
+          <section class="page-hero py-1">
+            <div class="container">
+              <div class="page-hero-content mx-auto max-w-[768px] text-center">
+                <PageHeader page_data={page_data} />
+              </div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="container">
+              <div class="row">
+                <div class="mx-auto text-center lg:col-8">
+                  <h2>Click on an option below</h2>
+                   
+                </div>
+                <div class="mx-custom text-center ">
+                    <a class="btn btn-primary mt-8 block w-half" data-modal-trigger="modal-add-child">
+                        Click Here to Sign Up
+                    </a> 
+                    <br>
+                    <a class="btn btn-primary mt-8 block w-half" href="/signin">
+                        Click Here to Sign In
+                    </a> 
+                </div>
+              </div>
+              <div class="row mt-12">
+              </div>
+            </div>
+          </section>
+          <Modal id="modal-add-child" size='3xl'>
+            <ModalHeader>
+              <h4>Sign Up to be a Teacher</h4>
+            </ModalHeader>
+            <ModalBody>
+              <AddTeacher user_id={21} client:load />
+            </ModalBody>
+            <ModalFooter>
+              <Button label="Close" data-modal-close />
+            </ModalFooter>
+          </Modal>
+          <section class="tab-section py-16">
+            <div class="container">
+            </div>
+          </section>
+        </Base>

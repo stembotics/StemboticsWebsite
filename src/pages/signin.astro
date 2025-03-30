@@ -2,10 +2,19 @@
 import Base from "@/layouts/Base.astro";
 import Notice from "@/shortcodes/Notice";
 import Stripe from 'stripe';
+import { turso } from '../turso'
+import { Input } from 'free-astro-components'
+
 
 const stripe = new Stripe(import.meta.env.STRIPE_KEY);
-const errors = { username: "", email: "", password: "" };
+const errors = { username: "", email: "", password: "", usernameStatus: "default", emailStatus: "default", passwordStatus: "default"};
 
+function parse(str) {
+    var args = [].slice.call(arguments, 1),
+        i = 0;
+
+    return str.replace(/%s/g, () => args[i++]);
+}
 if (Astro.request.method === 'POST') {
   // parse form data
   const formData = await Astro.request.formData();
@@ -18,23 +27,39 @@ if (Astro.request.method === 'POST') {
     Astro.cookies.set("id","ADMIN");
     return Astro.redirect('/admin');
   }
-  const customers = await stripe.customers.search({
-    query: `email:\'${email}\'`,
-  });
-  console.log(customers);
-  if (customers["data"].length >0 ) { 
-    const customer = customers["data"][0];
-    const customer_id = customer["id"];
-    const customer_email = customer["email"];
-    const customer_password = customer["metadata"]["password"];
+  const { rows } = await turso.execute(parse("SELECT * FROM Users WHERE email = '%s'", email));
+  
+  // const customers = await stripe.customers.search({
+  //   query: `email:\'${email}\'`,
+  // });
+  // console.log(rows);
+  if (rows.length >0 ) { 
+    const data = rows[0];
+    const customer_id = data.stripe_customer_id;
+    const customer_email = data.email;
+    const customer_password = data.password_hash;
     if (customer_email === email && customer_password === password) {
       Astro.cookies.set("id",customer_id);
       return Astro.redirect("/portal");
     }else{
       errors.password += "Password is incorrect. Email info@stembotics.org to change it.";
+      errors.passwordStatus = 'error';
     }
   } else{
-    errors.username += "Email is not registered.";
+    const { rows:teachers } = await turso.execute(parse("SELECT * FROM Teachers WHERE email = '%s'", email));
+    if (teachers.length >0){
+      const teachdata = teachers[0];
+      const teacher_email = teachdata.email;
+      const teacher_pass = teachdata.password;
+      if (teacher_email === email && teacher_pass === password) {
+        Astro.cookies.set("teacher_id",teachdata.teacher_id);
+        return Astro.redirect("/teachers/portal");
+      }
+
+    } else{
+      errors.usernameStatus = "error";
+      errors.username += "Email is not registered.";
+    }
   }
 }
 ---
@@ -53,28 +78,29 @@ if (Astro.request.method === 'POST') {
             <form  method="post" enctype="application/x-www-form-urlencoded" data-netlify="true"> 
               <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
-                <input
+                <Input
                   type="email"
                   id="email"
                   name="email"
                   class="form-control"
                   placeholder="Your Email Address"
+                  status = {errors.usernameStatus}
+                  helperText = {errors.username}
                   required
                   />
-                  {errors.username && <Notice type="warning">{errors.username}</Notice>}
                 </div>
-                <br>
                 <div class="form-group mt-4">
                 <label for="password" class="form-label">Password</label>
-                <input
+                <Input
                   type="password"
                   id="password"
                   name="password"
                   class="form-control"
                   placeholder="Your Password"
+                  status = {errors.passwordStatus}
+                  helperText = {errors.password}
                   required
                 />
-                {errors.password && <Notice type="warning">{errors.password}</Notice>}
                 
               </div>
               <input
