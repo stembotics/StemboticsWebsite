@@ -56,7 +56,7 @@ service:
     - title: International Competitions
       description: Experience the thrill of competing on a global stage! Join us to participate in renowned international robotics competitions and showcase your skills. 
       video:
-        thumbnail: "/images/intro-thumbnail.png"
+        thumbnail: "/images/about/9.png"
         video_id: "DwzOM3morF4"
       button:
         label: Get Involved

@@ -36,6 +36,12 @@ gallery:
     - "/images/about/gallery-img-1.png"
     - "/images/about/gallery-img-3.png"
     - "/images/about/gallery-img-2.png"
+    - "/images/about/4.png"
+    - "/images/about/5.png"
+    - "/images/about/6.png"
+    - "/images/about/7.png"
+    - "/images/about/8.png"
+    - "/images/about/9.png"
 
 ## our works
 features:

@@ -3,7 +3,7 @@ title: Why Us?
 banner:
   title: Ignite Creativity and Spark a Passion for STEM
   content: At Stembotics, we go beyond textbooks. We provide a fun and engaging environment where students can learn the fundamentals of Science, Technology, Engineering, and Math (STEM) through hands-on robotics exploration.
-  image: "/images/features-banner-img.png"
+  image: "/images/about/10.png"
   button:
     label: Enroll Today!
     link: "/portal"
@@ -25,13 +25,13 @@ perfomance:
 # works
 our_works:
   - title: VEX IQ Learning
-    image: "/images/how-it-work/results.png"
+    image: "/images/about/8.png"
     list:
       - Experience hands-on learning like never before!
       - Work alongside peers, sharing ideas and collaborating on solutions to real-world problems.
       - Benefit from expert instruction and mentorship, guiding you through every step of your learning journey.
   - title: VEX IQ Competitive
-    image: "/images/how-it-work/image-2.png"
+    image: "/images/about/11.png"
     list:
       - Join us for a thrilling adventure in robotics competition! In our VEX IQ Competitive Program, students test their skills against teams from around the region, developing strategic thinking and teamwork abilities along the way.
       - Develop strategic thinking and problem-solving abilities through challenging robotics competitions.
@@ -66,7 +66,7 @@ project_management:
   feature_service:
     title: Cultivate Essential 21st Century Skills
     description: In today's world, STEM skills are more important than ever. At Stembotics, we help students develop the skills they need to thrive in the future.
-    image: "/images/features/feature-img-1.png"
+    image: "/images/about/6.png"
     list:
       - Critical Thinking & Problem-Solving
       - Collaboration & Teamwork
@@ -86,11 +86,11 @@ project_management:
     list:
       - title: Experienced and Certified Instructors 
         content: Our instructors are passionate about STEM education and dedicated to helping each student reach their full potential.
-        image: "/images/features/feature-img-1.png" 
+        image: "/images/about/6.png" 
       - title: Small Class Sizes with Personalized Attention 
         content: We believe in a student-centered approach. Our small class sizes ensure that each student receives the individualized support they need to succeed. 
-        image: "/images/features/feature-img-2.png" 
+        image: "/images/about/6.png" 
       - title: Fun and Engaging Learning Environment 
         content: Learning shouldn't be boring! At Stembotics, we make learning STEM fun and interactive, sparking a lifelong passion for discovery. 
-        image: "/images/features/feature-img-3.png"
+        image: "/images/about/6.png"
 ---
