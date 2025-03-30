@@ -33,7 +33,7 @@ function createReactElementFromDOMElement(element) {
 					return undefined;
 				}
 			})
-			.filter((a) => !!a)
+			.filter((a) => !!a),
 	);
 }
 
@@ -67,8 +67,19 @@ const getOrCreateRoot = (element, creator) => {
 export default (element) =>
 	(Component, props, { default: children, ...slotted }, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
+
+		const actionKey = element.getAttribute('data-action-key');
+		const actionName = element.getAttribute('data-action-name');
+		const stringifiedActionResult = element.getAttribute('data-action-result');
+
+		const formState =
+			actionKey && actionName && stringifiedActionResult
+				? [JSON.parse(stringifiedActionResult), actionKey, actionName]
+				: undefined;
+
 		const renderOptions = {
 			identifierPrefix: element.getAttribute('prefix'),
+			formState,
 		};
 		for (const [key, value] of Object.entries(slotted)) {
 			props[key] = createElement(StaticHtml, { value, name: key });
@@ -77,7 +88,7 @@ export default (element) =>
 		const componentEl = createElement(
 			Component,
 			props,
-			getChildren(children, element.hasAttribute('data-react-children'))
+			getChildren(children, element.hasAttribute('data-react-children')),
 		);
 		const rootKey = isAlreadyHydrated(element);
 		// HACK: delete internal react marker for nested components to suppress aggressive warnings
