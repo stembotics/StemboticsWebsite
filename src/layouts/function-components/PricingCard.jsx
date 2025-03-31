@@ -4,6 +4,8 @@ import { humanize } from "@/lib/utils/textConverter";
 import * as Icon from "react-feather";
 
 const PricingCard = ({ item }) => {
+
+  // console.log(item);
   const FeatherIcon = Icon[humanize(item.icon)];
   return (
     <div className="mt-8 px-1 md:col-3 lg:col-6 lg:mt-0" key={item.title}>

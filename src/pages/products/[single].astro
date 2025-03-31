@@ -1,0 +1,152 @@
+---
+import { turso } from "@/turso";
+import CareerSidebar from "@/components/career/CareerSidebar.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import Shape from "@/components/Shape.astro";
+import Base from "@/layouts/Base.astro";
+import { getSinglePage, getSinglePageBySlug } from "@/lib/contentParser.astro";
+import similerItems from "@/lib/utils/similarItems";
+import { getEntryBySlug } from "astro:content";
+
+const careerIndex: any = await getEntryBySlug("careers", "-index");
+const careers = await getSinglePage("careers");
+
+export async function getStaticPaths() {
+  const coursesResult = await turso.execute("SELECT * FROM courses");
+  const courses = coursesResult.rows.map((row) => ({
+    title: row["name"],
+    id:row['id'],
+    slug: row["name"].toLowerCase().replace(/\s+/g, "-"),
+    description: row["description"],
+  }));
+  return courses.map((course) => ({
+    params: { single: course.slug },
+  }));
+}
+
+export const prerender = true;
+
+const { single } = Astro.params;
+
+const slugify = (title) => title.toLowerCase().replace(/\s+/g, "-");
+
+const allCoursesResult = await turso.execute("SELECT * FROM courses");
+const allCourses = allCoursesResult.rows.map((row) => ({
+    id: row['id'],
+    title: row['name'],
+    description: row['description'],
+    slug: slugify(row['name']),
+    price: row['price'],
+    start_date: row['start_date'],
+    location: row['location'],
+    course_overview: row['courseOverview'],
+    expected_curriculum: JSON.parse(row['expectedCurriculum']),
+    pricing_plan: JSON.parse(row['pricingPlan']),
+    category: row['category']
+}));
+
+const courseData = allCourses.find((course) => course.slug === single) || {};
+
+if (!courseData) return Astro.redirect('/404');
+
+const post = {
+  data: {
+    title: courseData.name,
+    description: courseData.description,
+
+    categories: [courseData.category],
+  },
+  body: `## ${courseData.title}\n ${courseData.description}`,
+  slug: courseData.slug,
+};
+const similarPosts = similerItems(post, careers, post.slug); 
+// console.log(similarPosts);
+const page_data = {
+  
+  index_title: "Products",
+  page_title: courseData.title,
+  slug: post.slug,
+};
+ 
+console.log(courseData);
+console.log(courseData.expected_curriculum)
+---
+
+<Base 
+  title={post.data.title}
+  meta_title={post.data.meta_title}
+  description={post.data.description}
+  
+>
+  <Shape />
+  <section class="page-hero pb-14 pt-16">
+    <div class="container">
+      <div class="page-hero-content mx-auto max-w-[883px] text-center">
+        <PageHeader page_data={page_data} />
+      </div>
+    </div>
+  </section>
+  <section class="section career-single pt-0">
+    <div class="container">
+      <div class="lg:gx-4 row">
+        <div class="lg:col-8">
+          <div
+          class="content lg:py-[60px] rounded-xl bg-white p-7 shadow-lg lg:px-12"          >
+          
+<!-- 
+          <h2 class="h2">Category</h2>
+          <h4>{courseData.category}</h4> -->
+          <h2 class="h3">Course Overview</h2>
+            <p>{courseData.course_overview}</p>
+            
+             
+             {courseData.expected_curriculum && typeof courseData.expected_curriculum === 'object' && (
+              <>
+                <h3 class="mt-6">Expected Curriculum</h3>
+                <ul>
+                  {Object.entries(courseData.expected_curriculum).map(([week, content]) => (
+                    <li class="mt-2" key={week}>
+                     {/* //   <strong>{week}:</strong> {content} */}
+                     <strong>{week}:</strong> {content}
+
+
+
+
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            
+            
+                <h3 >What You Get</h3>
+                
+                
+          <ul class="mt-6">
+
+            {courseData.pricing_plan && typeof courseData.pricing_plan === 'object' && (
+              <>
+                <li class="mb-3 text-lg">
+                  <strong>Price:</strong> ${courseData.pricing_plan.cost} for {courseData.pricing_plan.duration}
+                </li>
+              </>)}
+              <li class="mb-3 text-lg">
+              <strong>Start Date:</strong> {courseData.start_date}
+              </li>
+              <li class="mb-3 text-lg">
+              <strong>Location:</strong> {courseData.location}
+              </li>
+               <li class="mb-3 text-lg">
+              <strong>Category:</strong> {courseData.category}
+              </li>
+          </ul>
+          </div>
+        </div>
+        <CareerSidebar
+          posts={similarPosts[0]}
+          sidebar_content={careerIndex.data.sidebar_content}
+        />
+      </div>
+    </div>
+  </section>
+</Base>

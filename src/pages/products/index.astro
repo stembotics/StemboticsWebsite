@@ -62,7 +62,7 @@
         `${course.description}\n` +
         `### Pricing\n` +
         `- $${course.price} for course.`,
-      filePath: `src/content/careers/${course.title
+      filePath: `src/content/products/${course.title
         .toLowerCase()
         .replace(/\s+/g, "-")}.mdx`,
       slug: course.title.toLowerCase().replace(/\s+/g, "-"),
@@ -101,7 +101,7 @@
     />
   </section>
   <!-- pricing -->
-  <section class="section mt-12 pt-1">
+  <!-- <section class="section mt-12 pt-1">
     <div class="container">
       <div class="row lg:px-5">
         {pricing.data.pricing_card.map((item: any, i: number) => (
@@ -109,7 +109,7 @@
         ))}
       </div>
     </div>
-  </section>
+  </section> -->
 
   <Faq client:load data={pricing.data} />
 </Base>

@@ -3,10 +3,10 @@ title: "Enrollment"
 page_title: "Welcome, customer_name"
 buttons:
   - label: Check out our Programs
-    link: "https://stembotics.org/pricing"
+    link: "https://stembotics.org/products"
     enable: false
   - label: Learn More
-    link: "https://stembotics.org/pricing"
+    link: "https://stembotics.org/products"
     outline: true
     enable: false 
 

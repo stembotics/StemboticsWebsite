@@ -5,7 +5,7 @@ banner:
   image: /images/banner-img.png
   button:
     label: Check out our programs
-    link: "/pricing"
+    link: "/products"
     enable: true
 
 ##key features

@@ -75,7 +75,7 @@ project_management:
       - Coding & Programming
     buttons:
       - label: See our courses 
-        link: "/pricing"
+        link: "/products"
         enable: true
       - label: Learn More
         link: "/about"

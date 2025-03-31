@@ -3,10 +3,10 @@ title: "About"
 page_title: "About Stembotics: Empowering Future Innovators"
 buttons:
   - label: Check out our Programs
-    link: "/pricing"
+    link: "/products"
     enable: true
   - label: Learn More
-    link: "/pricing"
+    link: "/products"
     outline: true
     enable: false
 

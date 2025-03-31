@@ -269,6 +269,14 @@ declare module 'astro:content' {
   collection: "careers";
   data: any
 } & { render(): Render[".mdx"] };
+"products": {
+  "-index.mdx": {
+    id: "-index.mdx";
+    slug: "-index";
+    body: string;
+    collection: "products";
+    data: any
+  } & { render(): Render[".mdx"] };
 "3d-animaions-rendering.mdx": {
 	id: "3d-animaions-rendering.mdx";
   slug: "3d-animaions-rendering";
@@ -839,15 +847,6 @@ declare module 'astro:content' {
   slug: "index";
   body: string;
   collection: "portal";
-  data: any
-} & { render(): Render[".md"] };
-};
-"pricing": {
-"index.md": {
-	id: "index.md";
-  slug: "index";
-  body: string;
-  collection: "pricing";
   data: any
 } & { render(): Render[".md"] };
 };
