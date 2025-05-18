@@ -1,4 +1,4 @@
-import { d as db, v as verifyToken } from '../../../chunks/auth_DuCNQg1W.mjs';
+import { d as db, v as verifyToken } from '../../../chunks/auth_CSbJP1U3.mjs';
 export { r as renderers } from '../../../chunks/internal_BsTt5pTQ.mjs';
 
 const POST = async ({ request, cookies }) => {

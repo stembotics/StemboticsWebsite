@@ -1,7 +1,7 @@
 /* empty css                                    */
 import { c as createComponent, e as renderComponent, d as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_nyxJ0JCJ.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../../chunks/Layout_Dt5ugNSC.mjs';
+import { $ as $$Layout } from '../../chunks/Layout_DUh74eIp.mjs';
 export { r as renderers } from '../../chunks/internal_BsTt5pTQ.mjs';
 
 const $$Cancel = createComponent(($$result, $$props, $$slots) => {
