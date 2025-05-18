@@ -1,9 +1,9 @@
 /* empty css                                 */
 import { c as createComponent, m as maybeRenderHead, r as renderScript, d as renderTemplate, a as createAstro, e as renderComponent, F as Fragment, b as addAttribute } from '../chunks/astro/server_nyxJ0JCJ.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../chunks/Layout_DUh74eIp.mjs';
+import { $ as $$Layout } from '../chunks/Layout_DvdpRdin.mjs';
 import 'clsx';
-import { v as verifyToken, d as db } from '../chunks/auth_CSbJP1U3.mjs';
+import { v as verifyToken, d as db } from '../chunks/auth_H6y_H1li.mjs';
 export { r as renderers } from '../chunks/internal_BsTt5pTQ.mjs';
 
 const $$CourseForm = createComponent(async ($$result, $$props, $$slots) => {
