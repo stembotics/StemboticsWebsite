@@ -1,106 +1,288 @@
 ---
-import PageHeader from "@/components/PageHeader.astro";
-import Shape from "@/components/Shape.astro";
-import { createRequire } from 'module';
-import CounterComponent from "@/components/about/CounterComponent.astro";
-import Gallery from "@/components/about/Gallery.astro";
-import OurMembers from "@/components/about/OurMembers.astro";
-import Works from "@/components/about/Works.astro";
-import Base from "@/layouts/Base.astro";
-import { getEntryBySlug } from "astro:content";
-import Notice from "@/shortcodes/Notice";
-import type { plainify } from "@/lib/utils/textConverter";
-import Stripe from 'stripe';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Select } from 'free-astro-components'
-
-
-import { turso } from "@/turso";
-import { AiOutlineArrowRight } from "react-icons/ai";
-import AddTeacher from "@/components/AddTeacher";
-
-const require = createRequire(import.meta.url);
-const teachers = await getEntryBySlug("teachers", "index");
-const { counter, gallery, features } = teachers.data;
-let dataString = JSON.stringify(teachers.data);
-let pBody = dataString;
-// console.log(pBody);
-const page_data = {
-  ...JSON.parse(pBody),
-  content: teachers.body,
-};
-
+import Layout from '../../layouts/Layout.astro';
 ---
-<style>
-    .section {
-      padding-top: 0%;
-    }
-    :root {
-      --ac-primary: 68, 159, 102; /* New primary color */
-      --ac-secondary: 213, 98, 251; /* New secondary color */
-      --ac-dark: 33, 33, 33; /* New dark color */
-      --ac-gray-100: 240, 240, 240; /* New light gray */
-      --ac-gray-200: 200, 200, 200; /* New medium gray */
-      --ac-gray-300: 160, 160, 160; /* New dark gray */
-      --ac-success: 0, 200, 0; /* New success color */
-      --ac-warning: 255, 220, 0; /* New warning color */
-      --ac-danger: 255, 50, 50; /* New danger color */
-    }
-    .w-half {
-        width: 50%;
-    }
-    .mx-custom {
-        margin-left: 25%;
-        margin-right: 25%;
-    }
-    </style>
-    <Base
-          title={teachers.data.title}
-          meta_title={teachers.data.meta_title}
-          description={teachers.data.description}
-          image={teachers.data.image}
-        >
-          <Shape />
-          <section class="page-hero py-1">
-            <div class="container">
-              <div class="page-hero-content mx-auto max-w-[768px] text-center">
-                <PageHeader page_data={page_data} />
+
+<Layout title="For Teachers">
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-primary-800 to-secondary-900 opacity-90"></div>
+    <div class="absolute inset-0 bg-[url('/content/optimized/7.png')] bg-cover bg-center mix-blend-overlay"></div>
+    
+    <div class="container-custom relative z-10 py-20 md:py-28">
+      <div class="max-w-3xl text-center mx-auto">
+        <h1 class="text-white animate-slide-up">
+          Join Our Teaching Community
+        </h1>
+        <p class="mt-6 text-lg text-blue-100 md:text-xl max-w-2xl mx-auto animate-slide-up" style="animation-delay: 100ms;">
+          Share your expertise, inspire the next generation, and become part of a growing community of STEM educators at Stembotics Academy.
+        </p>
+        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style="animation-delay: 200ms;">
+          <a href="/teachers/signup" class="btn-primary px-8 py-3 text-lg shadow-lg">
+            Apply to Teach
+          </a>
+          <a href="#benefits" class="btn-outline bg-white/10 text-white border-white/20 hover:bg-white/20 px-8 py-3 text-lg">
+            Learn More
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section id="benefits" class="section">
+    <div class="container-custom">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2>Why Teach at Stembotics Academy?</h2>
+        <p class="mt-4 text-lg">Join a growing community of passionate educators who are making a difference in STEM education.</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <!-- Benefit 1 -->
+        <div class="flex flex-col items-center text-center">
+          <div class="bg-primary-100 p-4 rounded-full text-primary-600 mb-6">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Earn Competitive Income</h3>
+          <p class="text-slate-600">Receive fair compensation for your expertise with our revenue-sharing model. The more students you impact, the more you earn.</p>
+        </div>
+        
+        <!-- Benefit 2 -->
+        <div class="flex flex-col items-center text-center">
+          <div class="bg-primary-100 p-4 rounded-full text-primary-600 mb-6">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Full Creative Control</h3>
+          <p class="text-slate-600">Design your courses your way with our flexible platform. We provide the tools and support while you bring your teaching vision to life.</p>
+        </div>
+        
+        <!-- Benefit 3 -->
+        <div class="flex flex-col items-center text-center">
+          <div class="bg-primary-100 p-4 rounded-full text-primary-600 mb-6">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Global Reach</h3>
+          <p class="text-slate-600">Connect with students around the world who are eager to learn from your expertise. Make a global impact from your own home.</p>
+        </div>
+        
+        <!-- Benefit 4 -->
+        <div class="flex flex-col items-center text-center">
+          <div class="bg-primary-100 p-4 rounded-full text-primary-600 mb-6">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Powerful Teaching Tools</h3>
+          <p class="text-slate-600">Access our suite of teaching tools designed specifically for STEM education, including virtual labs, simulation tools, and interactive assessments.</p>
+        </div>
+        
+        <!-- Benefit 5 -->
+        <div class="flex flex-col items-center text-center">
+          <div class="bg-primary-100 p-4 rounded-full text-primary-600 mb-6">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Professional Development</h3>
+          <p class="text-slate-600">Grow your teaching skills with our workshops, webinars, and collaboration opportunities with other expert educators in the STEM field.</p>
+        </div>
+        
+        <!-- Benefit 6 -->
+        <div class="flex flex-col items-center text-center">
+          <div class="bg-primary-100 p-4 rounded-full text-primary-600 mb-6">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Supportive Community</h3>
+          <p class="text-slate-600">Join a collaborative network of fellow educators who share ideas, resources, and best practices to elevate STEM education worldwide.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section bg-slate-50">
+    <div class="container-custom">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2>How It Works</h2>
+        <p class="mt-4 text-lg">Get started in just a few simple steps and begin sharing your knowledge with eager students.</p>
+      </div>
+      
+      <div class="relative">
+        <!-- Process Timeline -->
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-200 transform -translate-x-1/2"></div>
+        
+        <div class="space-y-24">
+          <!-- Step 1 -->
+          <div class="relative">
+            <div class="hidden md:block absolute top-0 left-1/2 w-8 h-8 rounded-full bg-primary-600 text-white font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2">1</div>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+              <div class="md:text-right">
+                <h3 class="text-2xl font-bold mb-4">Apply to Teach</h3>
+                <p class="text-slate-600">Submit your application with your credentials, areas of expertise, and teaching experience. We carefully review each application to ensure high quality.</p>
+              </div>
+              <div class="md:pl-16">
+                <img src="/content/optimized/8.png" alt="Apply to Teach" class="rounded-lg shadow-md">
               </div>
             </div>
-          </section>
-          <section class="section">
-            <div class="container">
-              <div class="row">
-                <div class="mx-auto text-center lg:col-8">
-                  <h2>Click on an option below</h2>
-                   
-                </div>
-                <div class="mx-custom text-center ">
-                    <a class="btn btn-primary mt-8 block w-half" data-modal-trigger="modal-add-child">
-                        Click Here to Sign Up
-                    </a> 
-                    <br>
-                    <a class="btn btn-primary mt-8 block w-half" href="/signin">
-                        Click Here to Sign In
-                    </a> 
-                </div>
+          </div>
+          
+          <!-- Step 2 -->
+          <div class="relative">
+            <div class="hidden md:block absolute top-0 left-1/2 w-8 h-8 rounded-full bg-primary-600 text-white font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2">2</div>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+              <div class="order-2 md:order-1">
+                <img src="/content/optimized/9.png" alt="Create Your Courses" class="rounded-lg shadow-md">
               </div>
-              <div class="row mt-12">
+              <div class="order-1 md:order-2">
+                <h3 class="text-2xl font-bold mb-4">Create Your Courses</h3>
+                <p class="text-slate-600">Use our intuitive course builder to design engaging, interactive content. Add videos, quizzes, projects, and resources to create a comprehensive learning experience.</p>
               </div>
             </div>
-          </section>
-          <Modal id="modal-add-child" size='3xl'>
-            <ModalHeader>
-              <h4>Sign Up to be a Teacher</h4>
-            </ModalHeader>
-            <ModalBody>
-              <AddTeacher user_id={21} client:load />
-            </ModalBody>
-            <ModalFooter>
-              <Button label="Close" data-modal-close />
-            </ModalFooter>
-          </Modal>
-          <section class="tab-section py-16">
-            <div class="container">
+          </div>
+          
+          <!-- Step 3 -->
+          <div class="relative">
+            <div class="hidden md:block absolute top-0 left-1/2 w-8 h-8 rounded-full bg-primary-600 text-white font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2">3</div>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+              <div class="md:text-right">
+                <h3 class="text-2xl font-bold mb-4">Publish and Promote</h3>
+                <p class="text-slate-600">Launch your course to our global student community. We'll help promote your courses through our platform, and you can share with your network to maximize your reach.</p>
+              </div>
+              <div class="md:pl-16">
+                <img src="/content/optimized/10.png" alt="Publish and Promote" class="rounded-lg shadow-md">
+              </div>
             </div>
-          </section>
-        </Base>
+          </div>
+          
+          <!-- Step 4 -->
+          <div class="relative">
+            <div class="hidden md:block absolute top-0 left-1/2 w-8 h-8 rounded-full bg-primary-600 text-white font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2">4</div>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+              <div class="order-2 md:order-1">
+                <img src="/content/optimized/11.png" alt="Engage and Earn" class="rounded-lg shadow-md">
+              </div>
+              <div class="order-1 md:order-2">
+                <h3 class="text-2xl font-bold mb-4">Engage and Earn</h3>
+                <p class="text-slate-600">Interact with your students through discussions, feedback, and live sessions. Earn revenue from course enrollments and build your reputation as a STEM educator.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section bg-slate-50">
+    <div class="container-custom">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2>Frequently Asked Questions</h2>
+        <p class="mt-4 text-lg">Find answers to common questions about teaching at Stembotics Academy.</p>
+      </div>
+      
+      <div class="max-w-3xl mx-auto">
+        <div class="space-y-6">
+          <!-- FAQ Item 1 -->
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <button class="flex justify-between items-center w-full px-6 py-4 text-left font-semibold text-lg">
+              <span>What qualifications do I need to become an instructor?</span>
+              <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="px-6 pb-4">
+              <p class="text-slate-600">
+                We look for instructors with expertise in their field, whether through academic credentials (degree in a relevant field), professional experience (industry work), or demonstrated mastery (published work, projects, etc.). Teaching experience is beneficial but not always required if you have strong subject knowledge and communication skills.
+              </p>
+            </div>
+          </div>
+          
+          <!-- FAQ Item 2 -->
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <button class="flex justify-between items-center w-full px-6 py-4 text-left font-semibold text-lg">
+              <span>How does the revenue sharing model work?</span>
+              <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="px-6 pb-4">
+              <p class="text-slate-600">
+                Instructors receive 70% of the revenue from their course enrollments. Payments are processed monthly for all earnings above $50. We handle all payment processing, customer service, and platform maintenance so you can focus on creating great content.
+              </p>
+            </div>
+          </div>
+          
+          <!-- FAQ Item 3 -->
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <button class="flex justify-between items-center w-full px-6 py-4 text-left font-semibold text-lg">
+              <span>How long does it take to create a course?</span>
+              <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="px-6 pb-4">
+              <p class="text-slate-600">
+                The time investment varies depending on the course complexity and your preparation. On average, instructors spend 4-8 weeks developing a comprehensive course. We provide templates, guidelines, and support to streamline the process, and you can publish sections of your course progressively.
+              </p>
+            </div>
+          </div>
+          
+          <!-- FAQ Item 4 -->
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <button class="flex justify-between items-center w-full px-6 py-4 text-left font-semibold text-lg">
+              <span>What support does Stembotics Academy provide to instructors?</span>
+              <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="px-6 pb-4">
+              <p class="text-slate-600">
+                We provide comprehensive support including course development guidance, technical assistance with our platform tools, marketing support to promote your courses, and a dedicated instructor success manager. We also offer professional development opportunities and a community forum to connect with other instructors.
+              </p>
+            </div>
+          </div>
+          
+          <!-- FAQ Item 5 -->
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <button class="flex justify-between items-center w-full px-6 py-4 text-left font-semibold text-lg">
+              <span>Can I teach part-time while maintaining another job?</span>
+              <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="px-6 pb-4">
+              <p class="text-slate-600">
+                Absolutely! Most of our instructors teach part-time while maintaining other professional commitments. Our platform is designed to be flexible, allowing you to create course content on your schedule and engage with students when it's convenient for you.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="section bg-gradient-to-r from-primary-600 to-secondary-700 text-white">
+    <div class="container-custom">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="text-white">Ready to Share Your Expertise?</h2>
+        <p class="mt-4 text-lg text-blue-100">Join our community of STEM educators and make an impact on students around the world.</p>
+        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/teachers/signup" class="btn-primary bg-white text-primary-700 hover:bg-blue-50 px-8 py-3">
+            Apply to Teach
+          </a>
+          <a href="/contact" class="btn-outline border-white text-white hover:bg-white/10 px-8 py-3">
+            Contact Us
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,172 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { verifyToken } from '../../lib/auth';
+import { db } from '../../lib/db';
+
+// Check if user is admin
+const token = Astro.cookies.get('token');
+let isAdmin = false;
+let userData = null;
+
+if (token?.value) {
+  try {
+    const user = verifyToken(token.value);
+    if (user && user.role === 'admin') {
+      isAdmin = true;
+      const result = await db.execute({
+        sql: 'SELECT first_name, last_name FROM users WHERE id = ?',
+        args: [user.userId]
+      });
+      userData = result.rows[0];
+    }
+  } catch (error) {
+    console.error('Token verification failed:', error);
+  }
+}
+
+// Redirect if not admin
+if (!isAdmin) {
+  return Astro.redirect('/login?redirect=/admin/attendance');
+}
+
+// Get all courses with their attendance data
+const courses = await db.execute({
+  sql: `
+    SELECT 
+      c.id,
+      c.title as course_name,
+      t.first_name as teacher_first_name,
+      t.last_name as teacher_last_name,
+      COUNT(DISTINCT e.user_id) as total_students,
+      COUNT(DISTINCT sa.id) as total_attendance_records
+    FROM courses c
+    LEFT JOIN users t ON c.instructor_id = t.id
+    LEFT JOIN enrollments e ON c.id = e.course_id
+    LEFT JOIN class_sessions s ON c.id = s.course_id
+    LEFT JOIN class_attendance sa ON s.id = sa.class_id
+    GROUP BY c.id
+    ORDER BY c.title
+  `,
+  args: []
+});
+
+// Get attendance records for the last 30 days
+const attendanceRecords = await db.execute({
+  sql: `
+    SELECT 
+      sa.id,
+      s.session_date as session_date,
+      sa.status,
+      c.title as course_name,
+      u.first_name as student_first_name,
+      u.last_name as student_last_name
+    FROM class_attendance sa
+    JOIN class_sessions s ON sa.class_id = s.id
+    JOIN courses c ON s.course_id = c.id
+    JOIN users u ON sa.student_id = u.id
+    WHERE s.session_date >= date('now', '-30 days')
+    ORDER BY s.session_date DESC, c.title, u.last_name, u.first_name
+  `,
+  args: []
+});
+---
+<Layout title="Attendance Overview">
+  <div class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+          <h1 class="text-3xl font-bold tracking-tight text-gray-900">Attendance Overview</h1>
+          <p class="mt-2 text-sm text-gray-700">
+            View attendance records for all courses
+          </p>
+        </div>
+      </div>
+
+      <!-- Course Summary -->
+      <div class="mt-8">
+        <h2 class="text-lg font-medium text-gray-900">Course Summary</h2>
+        <div class="mt-4 flow-root">
+          <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead>
+                  <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Course</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Teacher</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Students</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Attendance Records</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  {courses.rows.map((course) => (
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                        {course.course_name}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {course.teacher_first_name} {course.teacher_last_name}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {course.total_students}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {course.total_attendance_records}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Attendance Records -->
+      <div class="mt-8">
+        <h2 class="text-lg font-medium text-gray-900">Recent Attendance Records (Last 30 Days)</h2>
+        <div class="mt-4 flow-root">
+          <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead>
+                  <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Date</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Course</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Student</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  {attendanceRecords.rows.map((record) => (
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                        {new Date(record.session_date as string).toLocaleDateString()}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {record.course_name}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {record.student_first_name} {record.student_last_name}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <span class={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                          record.status === 'completed' 
+                            ? 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20'
+                            : record.status === 'missed'
+                            ? 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20'
+                            : 'bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-600/20'
+                        }`}>
+                          {typeof record.status === 'string' ? record.status.charAt(0).toUpperCase() + record.status.slice(1) : 'Unknown'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout> 

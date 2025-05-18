@@ -1,0 +1,167 @@
+---
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  level: string;
+  duration: string;
+  price: number;
+  instructor: {
+    firstName: string;
+    lastName: string;
+  };
+  isEnrolled?: boolean;
+  likeCount?: number;
+  isLiked?: boolean;
+}
+
+interface Props {
+  course: Course;
+}
+
+const { course } = Astro.props;
+
+// Safely get initials, defaulting to '?' if name is missing
+const getInitials = (firstName?: string, lastName?: string) => {
+  const first = firstName?.[0] || '?';
+  const last = lastName?.[0] || '?';
+  return `${first}${last}`;
+};
+---
+
+<article class="card group h-full flex flex-col course-card">
+  <div class="relative">
+    <img 
+      src={course.image} 
+      alt={course.title}
+      class="w-full aspect-video object-cover rounded-t-lg"
+    />
+    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-primary-700 level-badge">
+      {course.level}
+    </div>
+  </div>
+  
+  <div class="p-6 flex-grow flex flex-col">
+    <div class="flex-grow">
+      <h3 class="text-xl font-bold text-slate-900 group-hover:text-primary-600 transition-colors">
+        {course.title}
+      </h3>
+      <p class="mt-2 text-slate-600 line-clamp-3">
+        {course.description}
+      </p>
+    </div>
+    
+    <div class="mt-4 flex items-center justify-between">
+      <div class="flex items-center">
+        <div class="w-10 h-10 rounded-full bg-primary-600 text-white font-medium flex items-center justify-center">
+          {getInitials(course.instructor.firstName, course.instructor.lastName)}
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-slate-900">
+            {course.instructor.firstName} {course.instructor.lastName}
+          </p>
+          <p class="text-xs text-slate-500">Instructor</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p class="text-lg font-bold text-primary-600">${course.price}</p>
+        <p class="text-xs text-slate-500">{course.duration}</p>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-slate-100 flex items-center justify-between">
+      <a 
+        href={`/courses/${course.id}`} 
+        class="btn-outline flex-grow"
+      >
+        {course.isEnrolled ? 'Continue Learning' : 'View Course'}
+      </a>
+      <button 
+        class="like-button bg-white hover:bg-slate-50 p-2 rounded-full shadow-sm transition-all ml-4"
+        data-course-id={course.id}
+        data-liked={course.isLiked}
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          class="h-6 w-6 transition-colors" 
+          fill={course.isLiked ? "currentColor" : "none"}
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            stroke-width="2" 
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+        <span class="like-count text-sm font-medium ml-1">{course.likeCount || 0}</span>
+      </button>
+    </div>
+  </div>
+</article>
+
+<script>
+  // Handle likes
+  document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const courseId = button.getAttribute('data-course-id');
+      const isLiked = button.getAttribute('data-liked') === 'true';
+      const likeCount = button.querySelector('.like-count');
+      const heartIcon = button.querySelector('svg');
+      
+      if (!likeCount || !heartIcon) return;
+
+      // Update UI immediately for better UX
+      const newLikeState = !isLiked;
+      button.setAttribute('data-liked', newLikeState.toString());
+      heartIcon.setAttribute('fill', newLikeState ? 'currentColor' : 'none');
+      
+      try {
+        const response = await fetch('/api/courses/like', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ courseId }),
+        });
+
+        if (!response.ok) {
+          // Revert UI changes if the request failed
+          button.setAttribute('data-liked', isLiked.toString());
+          heartIcon.setAttribute('fill', isLiked ? 'currentColor' : 'none');
+          throw new Error('Failed to process like');
+        }
+
+        const data = await response.json();
+        likeCount.textContent = data.count;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+  });
+</script>
+
+<style>
+  .like-button {
+    display: flex;
+    align-items: center;
+    color: #ef4444;
+  }
+  
+  .like-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .like-button[data-liked="true"] {
+    color: #ef4444;
+  }
+
+  .like-button svg {
+    transition: fill 0.2s ease-in-out;
+  }
+</style>

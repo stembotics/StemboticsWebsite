@@ -1,0 +1,262 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { verifyToken } from '../lib/auth';
+
+const token = Astro.cookies.get('token');
+let userData = null;
+if (token) {
+  const user = verifyToken(token.value);
+  if (user) {
+    userData = user;
+  }
+}
+---
+
+<Layout title="Shopping Cart">
+  <div class="bg-white">
+    <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900">Shopping Cart</h1>
+
+      <div id="cart-items" class="mt-8">
+        <!-- Cart items will be loaded here -->
+        <div class="text-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p class="mt-4 text-gray-500">Loading cart...</p>
+        </div>
+      </div>
+
+      <div id="empty-cart" class="hidden mt-8 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Your cart is empty</h3>
+        <p class="mt-1 text-sm text-gray-500">Start adding some items to your cart!</p>
+        <div class="mt-6">
+          <a href="/products" class="btn-primary">
+            Browse Products
+          </a>
+        </div>
+      </div>
+
+      <div id="cart-summary" class="hidden mt-8 border-t border-gray-200 pt-8">
+        <div class="flex justify-between text-base font-medium text-gray-900">
+          <p>Subtotal</p>
+          <p id="cart-subtotal">$0.00</p>
+        </div>
+        <p class="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
+        <div class="mt-6">
+          <button
+            id="checkout-button"
+            class="w-full btn-primary"
+            disabled
+          >
+            Checkout
+          </button>
+        </div>
+        <div class="mt-6 flex justify-center text-center text-sm text-gray-500">
+          <p>
+            or
+            <a href="/products" class="font-medium text-primary-600 hover:text-primary-500">
+              Continue Shopping
+              <span aria-hidden="true"> &rarr;</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  let cartItems: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image_url: string;
+  }> = [];
+  const cartItemsContainer = document.getElementById('cart-items') as HTMLDivElement;
+  const emptyCartMessage = document.getElementById('empty-cart') as HTMLDivElement;
+  const cartSummary = document.getElementById('cart-summary') as HTMLDivElement;
+  const cartSubtotal = document.getElementById('cart-subtotal') as HTMLParagraphElement;
+  const checkoutButton = document.getElementById('checkout-button') as HTMLButtonElement;
+
+  if (!cartItemsContainer || !emptyCartMessage || !cartSummary || !cartSubtotal || !checkoutButton) {
+    throw new Error('Required DOM elements not found');
+  }
+
+  async function loadCart() {
+    try {
+      const response = await fetch('/api/cart');
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error('Failed to load cart');
+      }
+
+      const data = await response.json();
+      cartItems = data.items;
+      renderCart();
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      cartItemsContainer.innerHTML = `
+        <div class="text-center py-12">
+          <p class="text-red-500">Failed to load cart. Please try again.</p>
+        </div>
+      `;
+    }
+  }
+
+  function renderCart() {
+    if (cartItems.length === 0) {
+      cartItemsContainer.classList.add('hidden');
+      emptyCartMessage.classList.remove('hidden');
+      cartSummary.classList.add('hidden');
+      return;
+    }
+
+    cartItemsContainer.classList.remove('hidden');
+    emptyCartMessage.classList.add('hidden');
+    cartSummary.classList.remove('hidden');
+
+    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+    checkoutButton.disabled = false;
+
+    cartItemsContainer.innerHTML = `
+      <div class="flow-root">
+        <ul role="list" class="-my-6 divide-y divide-gray-200">
+          ${cartItems.map(item => `
+            <li class="flex py-6">
+              <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                <img
+                  src="${item.image_url || '/images/placeholder.jpg'}"
+                  alt="${item.name || 'Product'}"
+                  class="h-full w-full object-cover object-center"
+                  onerror="this.src='/images/placeholder.jpg'"
+                />
+              </div>
+
+              <div class="ml-4 flex flex-1 flex-col">
+                <div>
+                  <div class="flex justify-between text-base font-medium text-gray-900">
+                    <h3>${item.name || 'Unknown Product'}</h3>
+                    <p class="ml-4">$${(item.price * item.quantity).toFixed(2)}</p>
+                  </div>
+                </div>
+                <div class="flex flex-1 items-end justify-between text-sm">
+                  <div class="flex items-center">
+                    <label for="quantity-${item.id}" class="mr-2 text-gray-500">Qty</label>
+                    <select
+                      id="quantity-${item.id}"
+                      class="rounded-md border-gray-300 text-base focus:border-primary-500 focus:outline-none focus:ring-primary-500"
+                    >
+                      ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => `
+                        <option value="${num}" ${item.quantity === num ? 'selected' : ''}>${num}</option>
+                      `).join('')}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="font-medium text-primary-600 hover:text-primary-500"
+                    onclick="removeItem('${item.id}')"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
+
+    // Add event listeners after rendering
+    cartItems.forEach(item => {
+      const quantitySelect = document.getElementById(`quantity-${item.id}`) as HTMLSelectElement;
+      const removeButton = quantitySelect.closest('li')?.querySelector('button');
+      
+      if (quantitySelect) {
+        quantitySelect.addEventListener('change', () => updateQuantity(item.id, quantitySelect.value));
+      }
+      
+      if (removeButton) {
+        removeButton.addEventListener('click', () => removeItem(item.id));
+      }
+    });
+  }
+
+  async function updateQuantity(itemId: string, quantity: string) {
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId, quantity: parseInt(quantity) }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update quantity');
+      }
+
+      await loadCart();
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      alert('Failed to update quantity. Please try again.');
+    }
+  }
+
+  async function removeItem(itemId: string) {
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove item');
+      }
+
+      await loadCart();
+    } catch (error) {
+      console.error('Error removing item:', error);
+      alert('Failed to remove item. Please try again.');
+    }
+  }
+
+  async function checkout() {
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error('Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert('Failed to start checkout. Please try again.');
+    }
+  }
+
+  checkoutButton.addEventListener('click', checkout);
+  loadCart();
+</script> 

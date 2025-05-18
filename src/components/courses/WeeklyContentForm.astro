@@ -1,0 +1,249 @@
+---
+import { db } from '../../lib/db';
+
+interface Props {
+  courseId: string;
+}
+
+const { courseId } = Astro.props;
+
+// Get existing weeks if any
+const existingContent = await db.execute({
+  sql: `SELECT week_number, 
+        COUNT(*) as content_count 
+        FROM course_content 
+        WHERE course_id = ? 
+        GROUP BY week_number 
+        ORDER BY week_number`,
+  args: [courseId]
+});
+
+const weeks = existingContent.rows.map(row => ({
+  weekNumber: row.week_number,
+  contentCount: row.content_count
+}));
+---
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h2 class="text-xl font-semibold">Course Content</h2>
+    <button 
+      type="button"
+      id="addWeekBtn"
+      class="btn-outline text-sm"
+    >
+      Add Week
+    </button>
+  </div>
+
+  <div id="weeksContainer" class="space-y-4">
+    <!-- Weeks will be added here dynamically -->
+    {weeks.map(week => (
+      <div class="week-section border rounded-lg overflow-hidden" data-week={week.weekNumber}>
+        <div class="week-header bg-slate-50 p-4 flex justify-between items-center cursor-pointer">
+          <h3 class="font-medium">Week {week.weekNumber}</h3>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-slate-600">{week.contentCount} items</span>
+            <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        <div class="week-content hidden p-4 space-y-4">
+          <div class="flex justify-end">
+            <button type="button" class="add-content-btn btn-primary text-sm">
+              Add Content
+            </button>
+          </div>
+          <!-- Content items will be loaded here -->
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<!-- Content Form Modal -->
+<div id="contentFormModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+    <h3 class="text-lg font-semibold mb-4">Add Content</h3>
+    <form id="contentForm" class="space-y-4">
+      <input type="hidden" id="weekNumber" name="weekNumber">
+      
+      <div>
+        <label for="title" class="block text-sm font-medium text-slate-700 mb-1">Title *</label>
+        <input 
+          type="text" 
+          id="title" 
+          name="title" 
+          required 
+          class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+        >
+      </div>
+
+      <div>
+        <label for="type" class="block text-sm font-medium text-slate-700 mb-1">Type *</label>
+        <select 
+          id="type" 
+          name="type" 
+          required 
+          class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+        >
+          <option value="video">Video</option>
+          <option value="reading">Reading</option>
+          <option value="quiz">Quiz</option>
+          <option value="assignment">Assignment</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-medium text-slate-700 mb-1">Description *</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          rows="3" 
+          required 
+          class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+        ></textarea>
+      </div>
+
+      <div>
+        <label for="content" class="block text-sm font-medium text-slate-700 mb-1">Content *</label>
+        <textarea 
+          id="content" 
+          name="content" 
+          rows="4" 
+          required 
+          class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+        ></textarea>
+        <p class="mt-1 text-sm text-slate-500">Add content URL for videos, text content for readings, or questions for quizzes</p>
+      </div>
+
+      <div id="errorMessage" class="text-red-600 text-sm hidden"></div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" id="cancelContentBtn" class="btn-outline">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary">
+          Add Content
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script define:vars={{ courseId, weeks }}>
+  let nextWeekNumber = weeks.length ? Math.max(...weeks.map(w => w.weekNumber)) + 1 : 1;
+  
+  // Function to setup week handlers
+  function setupWeekHandlers(weekSection) {
+    const header = weekSection.querySelector('.week-header');
+    const content = weekSection.querySelector('.week-content');
+    const arrow = weekSection.querySelector('svg');
+    
+    header?.addEventListener('click', () => {
+      content?.classList.toggle('hidden');
+      arrow?.classList.toggle('rotate-180');
+    });
+
+    const addContentBtn = weekSection.querySelector('.add-content-btn');
+    addContentBtn?.addEventListener('click', () => {
+      const modal = document.getElementById('contentFormModal');
+      const weekInput = document.getElementById('weekNumber');
+      if (modal && weekInput) {
+        modal.classList.remove('hidden');
+        weekInput.value = weekSection.dataset.week || '';
+      }
+    });
+  }
+
+  // Setup existing weeks
+  document.querySelectorAll('.week-section').forEach(setupWeekHandlers);
+  
+  // Add Week Button
+  document.getElementById('addWeekBtn')?.addEventListener('click', () => {
+    const weeksContainer = document.getElementById('weeksContainer');
+    const weekSection = document.createElement('div');
+    weekSection.className = 'week-section border rounded-lg overflow-hidden';
+    weekSection.dataset.week = nextWeekNumber.toString();
+    
+    weekSection.innerHTML = `
+      <div class="week-header bg-slate-50 p-4 flex justify-between items-center cursor-pointer">
+        <h3 class="font-medium">Week ${nextWeekNumber}</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-slate-600">0 items</span>
+          <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+      <div class="week-content hidden p-4 space-y-4">
+        <div class="flex justify-end">
+          <button type="button" class="add-content-btn btn-primary text-sm">
+            Add Content
+          </button>
+        </div>
+      </div>
+    `;
+    
+    weeksContainer?.appendChild(weekSection);
+    setupWeekHandlers(weekSection);
+    nextWeekNumber++;
+  });
+
+  // Modal handlers
+  const modal = document.getElementById('contentFormModal');
+  const cancelBtn = document.getElementById('cancelContentBtn');
+  const contentForm = document.getElementById('contentForm');
+  const errorMessage = document.getElementById('errorMessage');
+
+  cancelBtn?.addEventListener('click', () => {
+    modal?.classList.add('hidden');
+    contentForm?.reset();
+    if (errorMessage) errorMessage.classList.add('hidden');
+  });
+
+  contentForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(contentForm);
+    const data = {
+      courseId,
+      weekNumber: parseInt(formData.get('weekNumber')),
+      title: formData.get('title'),
+      type: formData.get('type'),
+      description: formData.get('description'),
+      content: formData.get('content'),
+      order: 0
+    };
+
+    try {
+      const response = await fetch('/api/courses/content/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create content');
+      }
+
+      window.location.reload();
+    } catch (error) {
+      if (errorMessage) {
+        errorMessage.textContent = error.message;
+        errorMessage.classList.remove('hidden');
+      }
+    }
+  });
+</script>
+
+<style>
+  .week-header:hover {
+    background-color: rgb(241 245 249);
+  }
+</style> 

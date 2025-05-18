@@ -1,0 +1,116 @@
+---
+import Header from '../components/common/Header.astro';
+import Footer from '../components/common/Footer.astro';
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: string;
+}
+
+const { 
+  title, 
+  description = "Stembotics Academy - Empowering the next generation of STEM innovators through cutting-edge robotics and technology education",
+  image = "https://stembotics.org/images/og-image.jpg",
+  type = "website"
+} = Astro.props;
+
+const baseUrl = 'https://stembotics.org';
+const canonicalURL = new URL(Astro.url.pathname, baseUrl);
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- Primary Meta Tags -->
+    <title>{title} | Stembotics Academy</title>
+    <meta name="title" content={`${title} | Stembotics Academy`} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={`${title} | Stembotics Academy`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:site_name" content="Stembotics Academy" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={`${title} | Stembotics Academy`} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={image} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lexend:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Stembotics Academy",
+        "url": "https://stembotics.org",
+        "logo": "https://stembotics.org/images/logo.png",
+        "description": "Empowering the next generation of STEM innovators through cutting-edge robotics and technology education",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "123 Innovation Way",
+          "addressLocality": "Mount Laurel",
+          "addressRegion": "NJ",
+          "postalCode": "08054",
+          "addressCountry": "US"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+1-856-209-3538",
+          "contactType": "customer service",
+          "email": "info@stembotics.org",
+          "availableLanguage": ["English"]
+        },
+        "sameAs": [
+          "https://www.linkedin.com/company/stembotics",
+          "https://www.instagram.com/stembotics_.academy/",
+          "https://www.facebook.com/p/Stembotics-Academy-61559479300312/"
+        ]
+      }
+    </script>
+  </head>
+  <body class="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <Header />
+    <main class="flex-grow">
+      <slot />
+    </main>
+    <Footer />
+    
+    <!-- Botpress Chat Widget -->
+    <script is:inline>
+      // Wait for DOM to be fully loaded
+      window.addEventListener('load', function() {
+        // Small delay to ensure everything is ready
+        setTimeout(function() {
+          const injectScript = document.createElement('script');
+          injectScript.src = 'https://cdn.botpress.cloud/webchat/v2.4/inject.js';
+          document.body.appendChild(injectScript);
+
+          injectScript.onload = function() {
+            const configScript = document.createElement('script');
+            configScript.src = 'https://files.bpcontent.cloud/2025/05/12/17/20250512174237-IYMUDJUJ.js';
+            document.body.appendChild(configScript);
+          };
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

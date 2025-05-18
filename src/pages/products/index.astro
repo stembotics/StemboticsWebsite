@@ -1,115 +1,55 @@
 ---
-  import Shape from "@/components/Shape.astro";
-  import { turso } from "@/turso";
-  import Base from "@/layouts/Base.astro";
-  import Faq from "@/layouts/function-components/Faq.jsx";
-  import JobPosts from "@/layouts/function-components/JobPosts";
-  import PricingCard from "@/layouts/function-components/PricingCard.jsx";
-  import { getSinglePage } from "@/lib/contentParser.astro";
-  import { getTaxonomy } from "@/lib/taxonomyParser.astro";
-  import PageHeader from "@/components/PageHeader.astro";
-  import type { TCareerIndex } from "@/types";
-  import { getEntryBySlug } from "astro:content";
+import Layout from '../../layouts/Layout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { db } from '../../lib/db';
 
-  const pricing = await getEntryBySlug("pricing", "index");
-  const careerIndex = (await getEntryBySlug<any, string>(
-    "pricing",
-    "index",
-  )) as TCareerIndex;
-  const page_data = {
-    ...pricing.data,
-    content: pricing.body,
-  };
-  const { benifits, career, image } = careerIndex.data;
-  const categories = await getTaxonomy("careers", "categories");
-  const jobposts = await getSinglePage("careers");
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  images: string[];
+  category: string;
+}
 
-  // Fetch courses from Turso
-  const coursesResult = await turso.execute("SELECT * FROM courses");
-  const courses = coursesResult.rows.map((row) => {
-    return {
-      id: row["id"],
-      title: row["name"],
-      description: row["description"],
-      category: row["category"],
-      price: row["price"],
-      start_date: row["start_date"],
-      end_date: row["end_date"],
-      location: row["location"],
-    };
-  });
+// Fetch products from database
+const result = await db.execute({
+  sql: `
+    SELECT p.*, pi.url as image_url 
+    FROM products p 
+    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.display_order = 0 
+    ORDER BY p.created_at DESC
+  `,
+  args: []
+});
 
-  // Job post template
-  const templateJobPost = jobposts[0];
-
-  // Create job posts for each course
-  const courseJobPosts = courses.map((course, index) => {
-    return {
-      ...templateJobPost,
-      id: `${course.title.toLowerCase().replace(/\s+/g, "-")}.mdx`,
-      data: {
-        ...templateJobPost.data,
-        title: course.title,
-        excerpt: course.description,
-        job_nature: `$${course.price}`,
-        location: `${course.location}`,
-        categories: [`${course.category}`],
-        date: new Date(course.start_date),
-        endDate: new Date(course.end_date),
-      },
-      body:
-        `## Course Overview\n` +
-        `${course.description}\n` +
-        `### Pricing\n` +
-        `- $${course.price} for course.`,
-      filePath: `src/content/products/${course.title
-        .toLowerCase()
-        .replace(/\s+/g, "-")}.mdx`,
-      slug: course.title.toLowerCase().replace(/\s+/g, "-"),
-    };
-  });
-  console.log(courseJobPosts);
-  // Replace jobposts with the new course job posts
-  const updatedJobPosts = [...courseJobPosts];
-  
- // Extract unique categories from courses
- const courseCategories = [
-    ...new Set(courses.map((course) => course.category)),
-  ];
-  
-  const updatedCategories = courseCategories
-
+const products = result.rows.map(product => ({
+  id: Number(product.id),
+  name: String(product.name),
+  description: String(product.description),
+  price: Number(product.price),
+  images: [String(product.image_url || '/images/placeholder.jpg')], // Use placeholder if no image
+  category: String(product.category)
+})) as Product[];
 ---
 
-<Base
-  title={pricing.data.title}
-  meta_title={pricing.data.meta_title}
-  description={pricing.data.description}
-  image={pricing.data.image}
->
-  <Shape />
+<Layout title="Products">
+  <div class="bg-white">
+    <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">STEM Learning Kits</h2>
+        <p class="mt-4 text-lg text-gray-500">
+          Discover our collection of hands-on STEM learning kits designed to inspire young minds. 
+          Each kit comes with everything needed to explore science, technology, engineering, and mathematics 
+          through engaging, interactive projects.
+        </p>
+      </div>
 
-  <section class="page-hero pb-14 pt-16">
-    <div class="container">
-      <PageHeader page_data={page_data} />
-   </div>
-    <JobPosts
-      client:load
-      categories={updatedCategories}
-      career={career}
-      posts={updatedJobPosts}
-    />
-  </section>
-  <!-- pricing -->
-  <!-- <section class="section mt-12 pt-1">
-    <div class="container">
-      <div class="row lg:px-5">
-        {pricing.data.pricing_card.map((item: any, i: number) => (
-          <PricingCard item={item} client:load />
+      <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+        {products.map((product) => (
+          <ProductCard product={product} />
         ))}
       </div>
     </div>
-  </section> -->
-
-  <Faq client:load data={pricing.data} />
-</Base>
+  </div>
+</Layout> 

@@ -1,9 +1,0 @@
-[build]
-publish = "dist"
-command = "npm run build && npm install stripe"
-
-[build.environment]
-NODE_VERSION = "18"
-
-[[headers]]
-for = "/*" # This defines which paths this specific [[headers]] block will cover.

@@ -1,177 +1,157 @@
 ---
-import Base from "@/layouts/Base.astro";
-import { createRequire } from 'module';
-import SigninSlider from "@/layouts/function-components/SigninSlider.jsx";
-import { Phone } from "react-feather";
-import Notice from "@/layouts/shortcodes/Notice.jsx"
-import Stripe from 'stripe';
-import { Input } from 'free-astro-components'
-import { turso } from '../turso'
-
-function parse(str) {
-    var args = [].slice.call(arguments, 1),
-        i = 0;
-
-    return str.replace(/%s/g, () => args[i++]);
-}
-
-const require = createRequire(import.meta.url);
-const stripe = new Stripe(import.meta.env.STRIPE_KEY);
-const errors = { username: "", email: "", password: "", usernameStatus: "default", emailStatus: "default", passwordStatus: "default"};
-
-
-if (Astro.request.method === 'POST') {
-  // parse form data
-  const formData = await Astro.request.formData();
-  const name = formData.get('name'); // get the name field
-  const tel = formData.get('tel');
-  const email = formData.get('email');
-  const password = formData.get('password');
-
-  if (typeof name !== "string" || name.length < 1) {
-    errors.username += "Please enter a Name.";
-    errors.usernameStatus = "error";
-  }
-  if (typeof password !== "string" || password.length < 6) {
-    errors.password += "Password must be at least 6 characters. ";
-    errors.passwordStatus = "error";
-  }
-  // const emailCount=1;
-  const { rows } = await turso.execute(parse("SELECT COUNT(*) AS count FROM Users WHERE email = '%s'", email));
-  const emailCount = rows[0].count; // Safely access count with optional chaining
-  console.log(emailCount);
-  const customers = await stripe.customers.search({
-    query: `email:\'${email}\'`,
-  });
-  if (emailCount ==0 ) { 
-    console.log("check1");
-    const customer = await stripe.customers.create({
-      name: name,
-      email: email,
-      phone: tel
-    });
-    // console.log(customer['id'])
-
-    const { rows: parentResult } = await turso.execute({
-      sql: 'INSERT INTO Users (customer_name, email, phone_number, password_hash, stripe_customer_id) VALUES (?, ?, ?, ?, ?) RETURNING user_id',
-      args: [`${name}`, `${email}`, `+1${tel}`, `${password}`, `${customer['id']}`], // Wrapped in quotes
-    });
-
-    const parentId = parentResult[0].user_id; // Safely access count with optional chaining
-    // console.log(parentId)
-    await stripe.customers.update(customer['id'], {
-      metadata: {
-        ...customer.metadata, // Keep existing metadata
-        UserID: parentId.toString(), // Update or add ParentID
-      },
-    });
-    Astro.cookies.set("id",customer['id'])
-    return Astro.redirect("/portal")
-  } else{
-    errors.email += "Email is already registered.";
-    errors.emailStatus = "error"
-  }
-}
-
+import Layout from '../layouts/Layout.astro';
+export const prerender = false;
 ---
 
-<Base>
-  <section>
-    <div class="container max-w-full">
-      <div class="row">
-        <div class="min-h-[980px] bg-white py-10  lg:py-[114px] bg-gradient">
-          <div class="mx-auto w-full max-w-[960px] ">
-            <div class="flex flex-col items-center justify-center">
-              <img class="mb-8 mx-auto " src="/images/flower.png" alt="" />
-              <h1 class="mb-4 text-black">Sign Up</h1>
-              <h4>Get ready to be immersed in learning</h4>
+<Layout title="Sign Up | Stembotics Academy">
+  <section class="min-h-screen bg-slate-50 py-12">
+    <div class="container-custom">
+      <div class="max-w-md mx-auto">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden p-8">
+          <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold">Create Your Account</h1>
+            <p class="text-slate-600 mt-2">Join Stembotics Academy today</p>
+          </div>
+
+          <form id="signupForm" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="firstName" class="block text-sm font-medium text-slate-700 mb-1">First Name</label>
+                <input 
+                  type="text" 
+                  id="firstName" 
+                  name="firstName" 
+                  required 
+                  class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                >
+              </div>
+              <div>
+                <label for="lastName" class="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
+                <input 
+                  type="text" 
+                  id="lastName" 
+                  name="lastName" 
+                  required 
+                  class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                >
+              </div>
             </div>
-            <!-- <div class="signin-options mt-10">
-              <a class="btn btn-outline-white block w-full text-dark" href="#"
-                >Sign Up With Google</a
+
+            <div>
+              <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                required 
+                class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               >
             </div>
-            <div
-              class="relative my-8 text-center after:absolute after:left-0 after:top-1/2 after:z-[0] after:w-full after:border-b after:border-border after:content-['']"
+
+            <div>
+              <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                required 
+                minlength="8"
+                class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              >
+              <p class="mt-1 text-sm text-slate-500">Must be at least 8 characters long</p>
+            </div>
+
+            <div class="flex items-start">
+              <input 
+                type="checkbox" 
+                id="terms" 
+                name="terms" 
+                required
+                class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 mt-1"
+              >
+              <label for="terms" class="ml-2 block text-sm text-slate-700">
+                I agree to the <a href="/terms" class="text-primary-600 hover:text-primary-700">Terms of Service</a> and 
+                <a href="/privacy" class="text-primary-600 hover:text-primary-700">Privacy Policy</a>
+              </label>
+            </div>
+
+            <div id="errorMessage" class="text-red-600 text-sm hidden"></div>
+
+            <button 
+              type="submit" 
+              class="w-full btn-primary py-2"
             >
-              <span class="relative z-[1] inline-block bg-white px-2"
-                >Or Sign Up With Email</span
-              >
-            </div> -->
+              Create Account
+            </button>
+          </form>
 
-            <form method="POST" enctype="application/x-www-form-urlencoded" data-netlify="true">
-              <br>
-              <div class="form-group">
-                <label for="name" class="form-label text-black">Full Name</label>
-                <Input
-                  type="text"
-                  id="name"
-                  name="name"
-                  class="form-control"
-                  placeholder="Your Full Name"
-                  status = {errors.usernameStatus}
-                  helperText = {errors.username}
-                  required
-                />
-              </div>
-
-              <div class="form-group mt-4">
-                <label for="email" class="form-label text-black">Email Address</label>
-                <Input
-                  type="email"
-                  id="email"
-                  name="email"
-                  class="form-control"
-                  placeholder="Your Email Address"
-                  status = {errors.emailStatus}
-                  helperText = {errors.email}
-                  required
-                />
-              </div>
-              <div class="form-group mt-4">
-                <label for="tel" class="form-label text-black">Phone No.</label>
-                <Input
-                  type="tel"
-                  id="tel"
-                  name="tel"
-                  class="form-control"
-                  placeholder="Your Phone Number"
-                  required
-                />
-              </div>
-              <div class="form-group mt-4">
-                <label for="password" class="form-label text-black">Password</label>
-                <Input
-                  type="password"
-                  minlength="6"
-                  id="password"
-                  name="password"
-                  class="form-control"
-                  placeholder="Your Password"
-                  status = {errors.passwordStatus}
-                  helperText = {errors.password}
-                  required
-                />
-
-              </div>
-              <input
-                class="btn btn-primary mt-10 block w-full"
-                type="submit"
-                value="Sign Up"
-              />
-            </form>
-            
-            <p class="mt-6 text-center text-dark">
-              Have an <a class="text-black">account</a>?
-              <a class="text-black" href="/signin">Sign in</a> here
+          <div class="mt-6 text-center text-sm">
+            <p class="text-slate-600">
+              Already have an account? 
+              <a href="/login" class="text-primary-600 hover:text-primary-700 font-medium">Log in</a>
+            </p>
+            <p class="mt-2 text-slate-600">
+              Want to teach? <a href="/teachers/signup" class="text-primary-600 hover:text-primary-700 font-medium">Apply as a teacher</a>
             </p>
           </div>
         </div>
-        <!-- <SigninSlider
-        client:load
-        title="Get ready to learn!"
-        /> -->
       </div>
     </div>
   </section>
-</Base>
+</Layout>
+
+<script>
+  const form = document.getElementById('signupForm') as HTMLFormElement;
+  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const data = {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
+      role: 'student' // Always set role to student
+    };
+
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Signup failed');
+      }
+
+      // Set cookie
+      const cookieResponse = await fetch('/api/auth/set-cookie', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token: result.token })
+      });
+
+      const cookieResult = await cookieResponse.json();
+
+      if (!cookieResponse.ok) {
+        throw new Error(cookieResult.error || 'Failed to set authentication');
+      }
+
+      window.location.href = '/dashboard';
+    } catch (error: any) {
+      if (errorMessage) {
+        errorMessage.textContent = error.message;
+        errorMessage.classList.remove('hidden');
+      }
+    }
+  });
+</script>

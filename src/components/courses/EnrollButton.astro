@@ -1,0 +1,49 @@
+---
+interface Props {
+  courseId: string;
+  isEnrolled?: boolean;
+}
+
+const { courseId, isEnrolled = false } = Astro.props;
+---
+
+<button 
+  type="button"
+  class="btn-primary w-full"
+  data-course-id={courseId}
+  data-enrolled={isEnrolled}
+  id="enrollButton"
+  disabled={isEnrolled}
+>
+  {isEnrolled ? 'Enrolled' : 'Enroll Now'}
+</button>
+
+<script>
+  const enrollButton = document.getElementById('enrollButton');
+  
+  enrollButton?.addEventListener('click', async () => {
+    if (enrollButton.dataset.enrolled === 'true') return;
+    
+    const courseId = enrollButton.dataset.courseId;
+    
+    try {
+      const response = await fetch('/api/courses/enroll', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ courseId })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to enroll');
+      }
+
+      window.location.reload();
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+</script> 

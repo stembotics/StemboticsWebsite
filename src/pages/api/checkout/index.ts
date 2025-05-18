@@ -1,0 +1,141 @@
+import type { APIRoute } from 'astro';
+import { db } from '../../../lib/db';
+import Stripe from 'stripe';
+import { verifyToken } from '../../../lib/auth';
+
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16',
+});
+
+export const POST: APIRoute = async ({ request, cookies }) => {
+  try {
+    const token = cookies.get('token');
+    if (!token) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+      });
+    }
+
+    const user = verifyToken(token.value);
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+      });
+    }
+
+    // Get user's cart with product details
+    const cartResult = await db.execute({
+      sql: `
+        SELECT 
+          ci.id,
+          ci.quantity,
+          p.id as product_id,
+          p.name,
+          p.price,
+          p.stripe_price_id,
+          p.stock,
+          sc.id as cart_id
+        FROM cart_items ci
+        JOIN products p ON ci.product_id = p.id
+        JOIN shopping_carts sc ON ci.cart_id = sc.id
+        JOIN users u ON sc.user_id = u.id
+        WHERE u.id = ?
+      `,
+      args: [user.userId]
+    });
+
+    if (!cartResult.rows.length) {
+      return new Response(JSON.stringify({ error: 'Cart is empty' }), {
+        status: 400,
+      });
+    }
+
+    // Verify stock availability
+    for (const item of cartResult.rows) {
+      const stock = parseInt(String(item.stock || '0'));
+      const quantity = parseInt(String(item.quantity || '0'));
+      if (stock < quantity) {
+        return new Response(JSON.stringify({ 
+          error: `Not enough stock available for ${item.name}` 
+        }), {
+          status: 400,
+        });
+      }
+    }
+
+    // Create line items for Stripe
+    const lineItems = cartResult.rows.map((item: any) => ({
+      price: item.stripe_price_id,
+      quantity: item.quantity,
+    }));
+
+    // Calculate total amount
+    const totalAmount = cartResult.rows.reduce((total: number, item: any) => {
+      return total + (parseFloat(String(item.price)) * parseInt(String(item.quantity)));
+    }, 0);
+
+    // Get the origin from the request headers or use a default
+    const origin = request.headers.get('origin') || 'http://localhost:3000';
+
+    // Create Stripe checkout session
+    const checkoutSession = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/cart`,
+      customer_email: user.email,
+      metadata: {
+        userId: user.userId,
+        cartId: cartResult.rows[0].cart_id
+      }
+    });
+
+    // Create order record
+    await db.execute({
+      sql: `
+        INSERT INTO orders (
+          user_id, 
+          stripe_session_id, 
+          status, 
+          total_amount
+        ) VALUES (?, ?, 'pending', ?)
+      `,
+      args: [user.userId, checkoutSession.id, totalAmount]
+    });
+
+    // Create order items
+    for (const item of cartResult.rows) {
+      await db.execute({
+        sql: `
+          INSERT INTO order_items (
+            order_id,
+            product_id,
+            quantity,
+            price_at_time
+          ) VALUES (
+            (SELECT id FROM orders WHERE stripe_session_id = ?),
+            ?,
+            ?,
+            ?
+          )
+        `,
+        args: [
+          checkoutSession.id,
+          item.product_id,
+          item.quantity,
+          item.price
+        ]
+      });
+    }
+
+    return new Response(JSON.stringify({ url: checkoutSession.url }), {
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    return new Response(JSON.stringify({ error: 'Failed to create checkout session' }), {
+      status: 500,
+    });
+  }
+} 

@@ -1,15 +1,4 @@
 declare module 'astro:content' {
-	interface Render {
-		'.mdx': Promise<{
-			Content: import('astro').MarkdownInstance<{}>['Content'];
-			headings: import('astro').MarkdownHeading[];
-			remarkPluginFrontmatter: Record<string, any>;
-			components: import('astro').MDXInstance<{}>['components'];
-		}>;
-	}
-}
-
-declare module 'astro:content' {
 	export interface RenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 		headings: import('astro').MarkdownHeading[];
@@ -158,118 +147,10 @@ declare module 'astro:content' {
 	};
 
 	type DataEntryMap = {
-		"about": Record<string, {
-  id: string;
-  body?: string;
-  collection: "about";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"admin": Record<string, {
-  id: string;
-  body?: string;
-  collection: "admin";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"blog": Record<string, {
-  id: string;
-  render(): Render[".md"];
-  slug: string;
-  body: string;
-  collection: "blog";
-  data: InferEntrySchema<"blog">;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"careers": Record<string, {
-  id: string;
-  body?: string;
-  collection: "careers";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"contact": Record<string, {
-  id: string;
-  body?: string;
-  collection: "contact";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"features": Record<string, {
-  id: string;
-  body?: string;
-  collection: "features";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"homepage": Record<string, {
-  id: string;
-  body?: string;
-  collection: "homepage";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"integrations": Record<string, {
-  id: string;
-  body?: string;
-  collection: "integrations";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"pages": Record<string, {
-  id: string;
-  render(): Render[".md"];
-  slug: string;
-  body: string;
-  collection: "pages";
-  data: InferEntrySchema<"pages">;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"portal": Record<string, {
-  id: string;
-  body?: string;
-  collection: "portal";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"products": Record<string, {
-  id: string;
-  body?: string;
-  collection: "products";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"red-watch": Record<string, {
-  id: string;
-  body?: string;
-  collection: "red-watch";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-"teachers": Record<string, {
-  id: string;
-  body?: string;
-  collection: "teachers";
-  data: any;
-  rendered?: RenderedContent;
-  filePath?: string;
-}>;
-
+		
 	};
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	export type ContentConfig = typeof import("../src/content/config.js");
+	export type ContentConfig = typeof import("../src/content.config.mjs");
 }

@@ -1,0 +1,63 @@
+---
+interface Props {
+  analytics: {
+    id: string;
+    title: string;
+    total_students: number;
+    average_progress: number;
+    completed_students: number;
+  }[];
+}
+
+const { analytics } = Astro.props;
+---
+
+<div class="space-y-8">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {analytics.map((course) => (
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="font-bold text-lg mb-4">{course.title}</h3>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm text-slate-600 mb-1">
+              <span>Total Students</span>
+              <span>{course.total_students}</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                class="bg-primary-600 h-2 rounded-full" 
+                style={`width: ${(course.total_students / 100) * 100}%`}
+              ></div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between text-sm text-slate-600 mb-1">
+              <span>Average Progress</span>
+              <span>{course.average_progress}%</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                class="bg-primary-600 h-2 rounded-full" 
+                style={`width: ${course.average_progress}%`}
+              ></div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between text-sm text-slate-600 mb-1">
+              <span>Completed</span>
+              <span>{course.completed_students}</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                class="bg-primary-600 h-2 rounded-full" 
+                style={`width: ${(course.completed_students / course.total_students) * 100}%`}
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
