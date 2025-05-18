@@ -1,4 +1,4 @@
-import { createClient } from '@libsql/client';
+import { createClient } from '@libsql/client/http';
 
 const url = import.meta.env.TURSO_DATABASE_URL;
 const authToken = import.meta.env.TURSO_AUTH_TOKEN;
@@ -12,7 +12,24 @@ export const db = createClient({
   authToken
 });
 
-export async function createUser({ email, passwordHash, firstName, lastName, role = 'student' }) {
+interface CreateUserParams {
+  email: string;
+  passwordHash: string;
+  firstName: string;
+  lastName: string;
+  role?: 'student' | 'teacher' | 'admin';
+}
+
+interface User {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  password_hash?: string;
+}
+
+export async function createUser({ email, passwordHash, firstName, lastName, role = 'student' }: CreateUserParams): Promise<User> {
   // Insert the user and return all fields
   const result = await db.execute({
     sql: `INSERT INTO users (email, password_hash, first_name, last_name, role) 
@@ -25,23 +42,23 @@ export async function createUser({ email, passwordHash, firstName, lastName, rol
     throw new Error('Failed to create user');
   }
 
-  return result.rows[0];
+  return result.rows[0] as unknown as User;
 }
 
-export async function getUserByEmail(email: string) {
+export async function getUserByEmail(email: string): Promise<User | undefined> {
   const result = await db.execute({
     sql: 'SELECT id, email, password_hash, first_name, last_name, role FROM users WHERE email = ?',
     args: [email]
   });
   
-  return result.rows[0];
+  return result.rows[0] as unknown as User | undefined;
 }
 
-export async function getUserById(id: number) {
+export async function getUserById(id: number): Promise<User | undefined> {
   const result = await db.execute({
     sql: 'SELECT id, email, first_name, last_name, role FROM users WHERE id = ?',
     args: [id]
   });
   
-  return result.rows[0];
+  return result.rows[0] as unknown as User | undefined;
 }

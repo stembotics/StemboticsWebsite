@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { createClient } from '@libsql/client';
+import { createClient } from '@libsql/client/http';
 
 const url = undefined                                  ;
 const authToken = undefined                                ;
