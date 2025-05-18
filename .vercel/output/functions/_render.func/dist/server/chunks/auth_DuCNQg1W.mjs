@@ -2,9 +2,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@libsql/client/http';
 
-const url = undefined                                  ;
-const authToken = undefined                                ;
-{
+const url = process.env.TURSO_DATABASE_URL;
+const authToken = process.env.TURSO_AUTH_TOKEN;
+if (!url || !authToken) {
   throw new Error("Missing Turso database credentials");
 }
 const db = createClient({
@@ -31,7 +31,7 @@ async function getUserByEmail(email) {
   return result.rows[0];
 }
 
-const JWT_SECRET = "your-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 async function signup({ email, password, firstName, lastName, role = "student" }) {
   const existingUser = await getUserByEmail(email);
   if (existingUser) {

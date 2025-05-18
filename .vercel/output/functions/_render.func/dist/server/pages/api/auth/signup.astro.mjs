@@ -1,4 +1,4 @@
-import { s as signup } from '../../../chunks/auth_t-EhPplD.mjs';
+import { s as signup } from '../../../chunks/auth_DuCNQg1W.mjs';
 import { z } from 'zod';
 import { s as sendWelcomeStudentEmail } from '../../../chunks/mailService_CEJTORmm.mjs';
 export { r as renderers } from '../../../chunks/internal_BsTt5pTQ.mjs';
