@@ -16,8 +16,4 @@ export default defineConfig({
     tailwind(),
     alpinejs(),
   ],
-  // Disable prerendering for routes that need database access
-  prerender: {
-    enabled: false
-  }
 });

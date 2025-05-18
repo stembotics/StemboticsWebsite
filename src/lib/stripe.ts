@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16'
 });
 
@@ -14,8 +14,8 @@ export async function createCheckoutSession(priceId: string, userId: string) {
         quantity: 1,
       },
     ],
-    success_url: `${process.env.SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.SITE_URL}/checkout/cancel`,
+    success_url: `${import.meta.env.SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${import.meta.env.SITE_URL}/checkout/cancel`,
     metadata: {
       userId,
     },
@@ -29,7 +29,7 @@ export async function handleWebhook(rawBody: string, signature: string) {
     const event = stripe.webhooks.constructEvent(
       rawBody,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET
+      import.meta.env.STRIPE_WEBHOOK_SECRET
     );
 
     switch (event.type) {

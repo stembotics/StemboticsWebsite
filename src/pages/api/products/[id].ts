@@ -3,7 +3,7 @@ import { db } from '../../../lib/db';
 import { verifyToken } from '../../../lib/auth';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16'
 });
 
