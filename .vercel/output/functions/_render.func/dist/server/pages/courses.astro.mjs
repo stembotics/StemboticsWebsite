@@ -1,9 +1,9 @@
 /* empty css                                 */
 import { c as createComponent, a as createAstro, e as renderComponent, r as renderScript, d as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_nyxJ0JCJ.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../chunks/Layout_DvdpRdin.mjs';
+import { $ as $$Layout } from '../chunks/Layout_AQO9YnP1.mjs';
 import { $ as $$CourseCard } from '../chunks/CourseCard_bGZoJ5O3.mjs';
-import { d as db, v as verifyToken } from '../chunks/auth_H6y_H1li.mjs';
+import { d as db, v as verifyToken } from '../chunks/auth_DpLPSZ93.mjs';
 export { r as renderers } from '../chunks/internal_BsTt5pTQ.mjs';
 
 async function getCourses() {

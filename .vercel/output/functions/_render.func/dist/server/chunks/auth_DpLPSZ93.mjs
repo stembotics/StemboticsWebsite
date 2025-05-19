@@ -2,8 +2,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@libsql/client/http';
 
-const url = "libsql://data-stembotics.aws-us-east-1.turso.io";
-const authToken = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NDY1NzI3ODEsImlkIjoiMWU1YTUxN2QtMGQ0Zi00YzcxLWE5YTItZjgxMDUwNDI0MTkyIiwicmlkIjoiMTI2Njk0Y2MtODk5NC00YTg3LTliMjktMTNlYzBiNzBjZDg0In0.LTt_7uhftu7DFMh52qVvOdA09IS6d-L_sS2mj1-sae9QZtIwN9__Tuv3NTgaDG61BYlISD-Y-P8kKpr_SkP6Cg";
+const url = undefined                                  ;
+const authToken = undefined                                ;
+console.log("TURSO_DATABASE_URL:", url);
+console.log("TURSO_AUTH_TOKEN:", authToken);
+{
+  throw new Error("Missing Turso database credentials");
+}
 const db = createClient({
   url,
   authToken
@@ -28,7 +33,7 @@ async function getUserByEmail(email) {
   return result.rows[0];
 }
 
-const JWT_SECRET = "your-jwt-secret";
+const JWT_SECRET = "your-secret-key";
 async function signup({ email, password, firstName, lastName, role = "student" }) {
   const existingUser = await getUserByEmail(email);
   if (existingUser) {

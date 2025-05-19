@@ -1,8 +1,8 @@
 /* empty css                                    */
 import { c as createComponent, a as createAstro, e as renderComponent, d as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_nyxJ0JCJ.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../../chunks/Layout_DvdpRdin.mjs';
-import { v as verifyToken, d as db } from '../../chunks/auth_H6y_H1li.mjs';
+import { $ as $$Layout } from '../../chunks/Layout_AQO9YnP1.mjs';
+import { v as verifyToken, d as db } from '../../chunks/auth_DpLPSZ93.mjs';
 import Stripe from 'stripe';
 export { r as renderers } from '../../chunks/internal_BsTt5pTQ.mjs';
 
@@ -10,7 +10,7 @@ const $$Astro = createAstro();
 const $$Success = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Success;
-  const stripe = new Stripe("sk_test_51RNbLuBF9LGQv1aWohfZgX4RLjVYr8KGQzxyIm9BdYbuiwHfH5PAtBnaANLzlT6cikNBViuvXXDyyRkEblfmOQ4M00n0N6XJJR", {
+  const stripe = new Stripe(undefined                                 , {
     apiVersion: "2023-10-16"
   });
   const sessionId = Astro2.url.searchParams.get("session_id");

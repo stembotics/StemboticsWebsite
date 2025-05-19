@@ -6,7 +6,7 @@ const ACTION_QUERY_PARAMS$1 = {
   actionName: "_action"};
 const ACTION_RPC_ROUTE_PATTERN = "/_actions/[...path]";
 
-const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RNbLuBF9LGQv1aWVYx7qqa0z8kQdnHIkgSvqpBeCrjwI5SAFDfiSK6tm0GbSRlOxwttuWg7Gp3Ad9YHLTkCau7f00uMi2dum1", "SITE": undefined, "SSR": true};
+const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "SITE": undefined, "SSR": true};
 const ACTION_QUERY_PARAMS = ACTION_QUERY_PARAMS$1;
 const codeToStatusMap = {
   // Implemented from tRPC error code table

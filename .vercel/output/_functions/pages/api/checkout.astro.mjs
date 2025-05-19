@@ -1,8 +1,8 @@
-import { v as verifyToken, d as db } from '../../chunks/auth_H6y_H1li.mjs';
+import { v as verifyToken, d as db } from '../../chunks/auth_DpLPSZ93.mjs';
 import Stripe from 'stripe';
 export { r as renderers } from '../../chunks/internal_BsTt5pTQ.mjs';
 
-const stripe = new Stripe("sk_test_51RNbLuBF9LGQv1aWohfZgX4RLjVYr8KGQzxyIm9BdYbuiwHfH5PAtBnaANLzlT6cikNBViuvXXDyyRkEblfmOQ4M00n0N6XJJR", {
+const stripe = new Stripe(undefined                                 , {
   apiVersion: "2023-10-16"
 });
 const POST = async ({ request, cookies }) => {

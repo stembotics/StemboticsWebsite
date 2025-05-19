@@ -2,6 +2,8 @@ import { createClient } from '@libsql/client/http';
 
 const url = import.meta.env.TURSO_DATABASE_URL;
 const authToken = import.meta.env.TURSO_AUTH_TOKEN;
+console.log("TURSO_DATABASE_URL:", url);
+console.log("TURSO_AUTH_TOKEN:", authToken);
 
 if (!url || !authToken) {
   throw new Error('Missing Turso database credentials');
