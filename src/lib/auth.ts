@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createUser, getUserByEmail } from './db';
+import { JWT_SECRET } from 'astro:env/server';
 
-const JWT_SECRET = import.meta.env.JWT_SECRET || 'your-secret-key';
+const secret = JWT_SECRET || 'your-secret-key';
 
 interface User {
   id: string | number;
@@ -34,7 +35,7 @@ export async function signup({ email, password, firstName, lastName, role = 'stu
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await createUser({ email, passwordHash, firstName, lastName, role });
   
-  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign({ userId: user.id, role: user.role }, secret, { expiresIn: '7d' });
   return { token, user: { ...user, password_hash: undefined } };
 }
 
@@ -55,7 +56,7 @@ export async function login({ email, password }: { email: string; password: stri
   // Create token with explicit userId in payload
   const tokenPayload = { userId: user.id, role: user.role };
   console.log('Creating token with payload:', tokenPayload);
-  const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign(tokenPayload, secret, { expiresIn: '7d' });
   
   // Return user without password hash
   return { 
@@ -71,12 +72,12 @@ export async function createToken(user: User): Promise<string> {
     role: user.role
   };
   
-  return jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '24h' });
+  return jwt.sign(tokenPayload, secret, { expiresIn: '24h' });
 }
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    const decoded = jwt.verify(token, secret) as TokenPayload;
     
     if (!decoded.userId) {
       return null;

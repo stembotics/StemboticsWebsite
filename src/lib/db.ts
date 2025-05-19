@@ -1,18 +1,16 @@
+import { TURSO_DATABASE_URL, TURSO_AUTH_TOKEN } from 'astro:env/server';
 import { createClient } from '@libsql/client/http';
 
-const url = import.meta.env.TURSO_DATABASE_URL;
-const authToken = import.meta.env.TURSO_AUTH_TOKEN;
-console.log("TURSO_DATABASE_URL:", url);
-console.log("TURSO_AUTH_TOKEN:", authToken);
-console.log("ENV LOADED:", import.meta.env);
+console.log("TURSO_DATABASE_URL:", TURSO_DATABASE_URL);
+console.log("TURSO_AUTH_TOKEN:", TURSO_AUTH_TOKEN);
 
-if (!url || !authToken) {
+if (!TURSO_DATABASE_URL || !TURSO_AUTH_TOKEN) {
   throw new Error('Missing Turso database credentials');
 }
 
 export const db = createClient({
-  url,
-  authToken
+  url: TURSO_DATABASE_URL,
+  authToken: TURSO_AUTH_TOKEN,
 });
 
 interface CreateUserParams {
