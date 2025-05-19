@@ -1,0 +1,57 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { db } from '../../lib/db';
+
+export const prerender = false;
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  images: string[];
+  category: string;
+}
+
+// Fetch products from database
+const result = await db.execute({
+  sql: `
+    SELECT p.*, pi.url as image_url 
+    FROM products p 
+    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.display_order = 0 
+    ORDER BY p.created_at DESC
+  `,
+  args: []
+});
+
+const products = result.rows.map(product => ({
+  id: Number(product.id),
+  name: String(product.name),
+  description: String(product.description),
+  price: Number(product.price),
+  images: [String(product.image_url || '/images/placeholder.jpg')], // Use placeholder if no image
+  category: String(product.category)
+})) as Product[];
+---
+
+<Layout title="Products">
+  <div class="bg-white">
+    <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">STEM Learning Kits</h2>
+        <p class="mt-4 text-lg text-gray-500">
+          Discover our collection of hands-on STEM learning kits designed to inspire young minds. 
+          Each kit comes with everything needed to explore science, technology, engineering, and mathematics 
+          through engaging, interactive projects.
+        </p>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+        {products.map((product) => (
+          <ProductCard product={product} />
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout> 

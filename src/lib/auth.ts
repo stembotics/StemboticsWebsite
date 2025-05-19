@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createUser, getUserByEmail } from './db';
-import { JWT_SECRET } from 'astro:env/server';
 
-const secret = JWT_SECRET || 'your-secret-key';
+const secret = process.env.JWT_SECRET || 'your-secret-key';
 
 interface User {
   id: string | number;

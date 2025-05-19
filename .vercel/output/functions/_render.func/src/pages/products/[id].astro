@@ -1,0 +1,197 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { db } from '../../lib/db';
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+  stock: number;
+}
+
+// Get product data
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/404');
+}
+
+const result = await db.execute({
+  sql: `
+    SELECT p.*, pi.url as image_url 
+    FROM products p 
+    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.display_order = 0
+    WHERE p.id = ?
+  `,
+  args: [id]
+});
+
+const product = result.rows[0] ? {
+  id: Number(result.rows[0].id),
+  name: String(result.rows[0].name),
+  description: String(result.rows[0].description),
+  price: Number(result.rows[0].price),
+  image: String(result.rows[0].image_url || '/images/placeholder.jpg'),
+  category: String(result.rows[0].category),
+  stock: Number(result.rows[0].stock)
+} as Product : null;
+
+// If no product is found, return 404
+if (!product) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout title={product.name}>
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 translate-y-[-100%] transition-all duration-300 ease-in-out z-50 opacity-0">
+    <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center min-w-[200px]">
+      <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <span id="toast-message">Item added to cart!</span>
+    </div>
+  </div>
+
+  <div class="bg-white">
+    <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <div class="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
+        {/* Image gallery */}
+        <div class="flex flex-col-reverse">
+          <div class="aspect-h-1 aspect-w-1 w-full">
+            <img
+              src={product.image}
+              alt={product.name}
+              class="h-full w-full object-cover object-center sm:rounded-lg"
+            />
+          </div>
+        </div>
+
+        {/* Product info */}
+        <div class="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
+          <h1 class="text-3xl font-bold tracking-tight text-gray-900">{product.name}</h1>
+          <div class="mt-3">
+            <h2 class="sr-only">Product information</h2>
+            <p class="text-3xl tracking-tight text-gray-900">${product.price.toFixed(2)}</p>
+          </div>
+
+          <div class="mt-6">
+            <h3 class="sr-only">Description</h3>
+            <div class="space-y-6 text-base text-gray-700">
+              <p>{product.description}</p>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="flex items-center">
+              {product.stock > 0 ? (
+                <button
+                  type="button"
+                  id="add-to-cart-btn"
+                  class="btn-primary w-full"
+                  data-product-id={product.id}
+                >
+                  Add to Cart
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  class="btn-primary w-full opacity-50 cursor-not-allowed"
+                  disabled
+                >
+                  Out of Stock
+                </button>
+              )}
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+              {product.stock > 0 
+                ? `${product.stock} items in stock` 
+                : 'Currently out of stock'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  declare global {
+    interface Window {
+      addToCart: (productId: number) => Promise<void>;
+    }
+  }
+
+  // Toast notification function
+  function showToast(message: string) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    if (toast && toastMessage) {
+      toastMessage.textContent = message;
+      // Show the toast
+      toast.classList.remove('translate-y-[-100%]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      
+      // Hide the toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.add('translate-y-[-100%]', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+  }
+
+  window.addToCart = async function(productId: number) {
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        if (response.status === 400) {
+          const data = await response.json();
+          showToast(data.error || 'Failed to add item to cart');
+          return;
+        }
+        throw new Error('Failed to add item to cart');
+      }
+
+      showToast('Item added to cart!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showToast('Failed to add item to cart. Please try again.');
+    }
+  }
+
+  // Add event listener when the page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    if (addToCartBtn) {
+      addToCartBtn.addEventListener('click', () => {
+        const productId = Number(addToCartBtn.getAttribute('data-product-id'));
+        window.addToCart(productId);
+      });
+    }
+  });
+</script>
+
+<style>
+  #toast {
+    transform: translateX(-50%) translateY(-100%);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  #toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+</style> 

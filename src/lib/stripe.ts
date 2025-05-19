@@ -1,7 +1,6 @@
 import Stripe from 'stripe';
-import { STRIPE_SECRET_KEY, SITE_URL } from 'astro:env/server';
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2023-10-16'
 });
 
@@ -15,8 +14,8 @@ export async function createCheckoutSession(priceId: string, userId: string) {
         quantity: 1,
       },
     ],
-    success_url: `${SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${SITE_URL}/checkout/cancel`,
+    success_url: `${process.env.SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.SITE_URL}/checkout/cancel`,
     metadata: {
       userId,
     },
@@ -30,7 +29,7 @@ export async function handleWebhook(rawBody: string, signature: string) {
     const event = stripe.webhooks.constructEvent(
       rawBody,
       signature,
-      import.meta.env.STRIPE_WEBHOOK_SECRET
+      process.env.STRIPE_WEBHOOK_SECRET as string
     );
 
     switch (event.type) {
