@@ -4,6 +4,7 @@ const url = import.meta.env.TURSO_DATABASE_URL;
 const authToken = import.meta.env.TURSO_AUTH_TOKEN;
 console.log("TURSO_DATABASE_URL:", url);
 console.log("TURSO_AUTH_TOKEN:", authToken);
+console.log("ENV LOADED:", import.meta.env);
 
 if (!url || !authToken) {
   throw new Error('Missing Turso database credentials');

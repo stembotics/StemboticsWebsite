@@ -2,11 +2,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@libsql/client/http';
 
-const url = undefined                                  ;
-const authToken = undefined                                ;
+const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "SITE": undefined, "SSR": true};
+const url = Object.assign(__vite_import_meta_env__, { _: process.env._ }).TURSO_DATABASE_URL;
+const authToken = Object.assign(__vite_import_meta_env__, { _: process.env._ }).TURSO_AUTH_TOKEN;
 console.log("TURSO_DATABASE_URL:", url);
 console.log("TURSO_AUTH_TOKEN:", authToken);
-{
+console.log("ENV LOADED:", Object.assign(__vite_import_meta_env__, { _: process.env._ }));
+if (!url || !authToken) {
   throw new Error("Missing Turso database credentials");
 }
 const db = createClient({
