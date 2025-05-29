@@ -2,7 +2,7 @@ import { d as db, v as verifyToken } from '../../chunks/auth_C2fVUnyh.mjs';
 import Stripe from 'stripe';
 export { r as renderers } from '../../chunks/internal_BsTt5pTQ.mjs';
 
-const stripe = new Stripe(undefined                                 , {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16"
 });
 const GET = async ({ request }) => {

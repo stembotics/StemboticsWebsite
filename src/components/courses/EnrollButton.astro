@@ -24,6 +24,14 @@ const { courseId, isEnrolled = false } = Astro.props;
   enrollButton?.addEventListener('click', async () => {
     if (enrollButton.dataset.enrolled === 'true') return;
     
+    // Check if user is logged in
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+    if (!token) {
+      alert('Please log in to enroll in this course');
+      window.location.href = '/login';
+      return;
+    }
+    
     const courseId = enrollButton.dataset.courseId;
     
     try {

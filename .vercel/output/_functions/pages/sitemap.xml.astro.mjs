@@ -1,11 +1,11 @@
 import { createRequire } from 'node:module';
 import 'kleur/colors';
-import { k as ASTRO_VERSION, A as AstroError, U as UnknownContentCollectionError } from '../chunks/astro/server_nyxJ0JCJ.mjs';
+import { k as ASTRO_VERSION, A as AstroError, U as UnknownContentCollectionError } from '../chunks/astro/server_BXRAwln_.mjs';
 import 'clsx';
 import { version } from 'vite';
 import 'common-ancestor-path';
 import 'es-module-lexer';
-import '../chunks/astro-designed-error-pages_DrWE42Iu.mjs';
+import '../chunks/astro-designed-error-pages_CKIgNTY2.mjs';
 import 'xxhash-wasm';
 import { syntaxHighlightDefaults, markdownConfigDefaults } from '@astrojs/markdown-remark';
 import 'github-slugger';

@@ -1,7 +1,7 @@
 /* empty css                                    */
-import { c as createComponent, a as createAstro, e as renderComponent, d as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_nyxJ0JCJ.mjs';
+import { c as createComponent, a as createAstro, e as renderComponent, d as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_BXRAwln_.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../../chunks/Layout_BzCtafMy.mjs';
+import { $ as $$Layout } from '../../chunks/Layout_oB6cU0PH.mjs';
 import { v as verifyToken, d as db } from '../../chunks/auth_C2fVUnyh.mjs';
 import Stripe from 'stripe';
 export { r as renderers } from '../../chunks/internal_BsTt5pTQ.mjs';
@@ -10,7 +10,7 @@ const $$Astro = createAstro();
 const $$Success = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Success;
-  const stripe = new Stripe(undefined                                 , {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2023-10-16"
   });
   const sessionId = Astro2.url.searchParams.get("session_id");
@@ -93,6 +93,7 @@ $${Number(orderDetails[0].total_amount).toFixed(2)} </dd> </div> </dl> </div> <d
 Continue Shopping
 </a> </div> </div>`} </div> </div> ` })}`;
 }, "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/pages/checkout/success.astro", void 0);
+
 const $$file = "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/pages/checkout/success.astro";
 const $$url = "/checkout/success";
 
