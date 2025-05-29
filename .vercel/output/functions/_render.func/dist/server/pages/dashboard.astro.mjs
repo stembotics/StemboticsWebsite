@@ -1,9 +1,9 @@
 /* empty css                                 */
-import { c as createComponent, m as maybeRenderHead, r as renderScript, d as renderTemplate, a as createAstro, e as renderComponent, F as Fragment, b as addAttribute } from '../chunks/astro/server_BXRAwln_.mjs';
+import { c as createComponent, m as maybeRenderHead, r as renderScript, d as renderTemplate, a as createAstro, b as addAttribute, e as renderComponent, F as Fragment } from '../chunks/astro/server_BXRAwln_.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../chunks/Layout_oB6cU0PH.mjs';
+import { $ as $$Layout } from '../chunks/Layout_3hfigpS4.mjs';
 import 'clsx';
-import { v as verifyToken, d as db } from '../chunks/auth_C2fVUnyh.mjs';
+import { v as verifyToken, d as db, g as getChildren } from '../chunks/auth_DTf2el9S.mjs';
 export { r as renderers } from '../chunks/internal_BsTt5pTQ.mjs';
 
 const $$CourseForm = createComponent(async ($$result, $$props, $$slots) => {
@@ -11,6 +11,24 @@ const $$CourseForm = createComponent(async ($$result, $$props, $$slots) => {
 Create Course
 </button> </form> ${renderScript($$result, "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/components/courses/CourseForm.astro?astro&type=script&index=0&lang.ts")}`;
 }, "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/components/courses/CourseForm.astro", void 0);
+
+const $$Astro$1 = createAstro();
+const $$ChildrenManager = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro$1, $$props, $$slots);
+  Astro2.self = $$ChildrenManager;
+  const { children } = Astro2.props;
+  return renderTemplate`${maybeRenderHead()}<div class="bg-white rounded-xl shadow-md overflow-hidden"> <div class="p-6"> <div class="flex justify-between items-center mb-6"> <h2 class="text-xl font-semibold">My Children</h2> <button id="addChildBtn" class="btn-primary">
+Add Child
+</button> </div> ${children.length === 0 ? renderTemplate`<div class="text-center py-8"> <p class="text-slate-600">No children added yet. Add your first child to get started.</p> </div>` : renderTemplate`<div class="grid gap-4"> ${children.map((child) => renderTemplate`<div class="border rounded-lg p-4 hover:border-primary-500 transition-colors"> <div class="flex justify-between items-start"> <div> <h3 class="font-medium text-lg">${child.first_name} ${child.last_name}</h3> <p class="text-slate-600 text-sm mt-1">Grade ${child.grade_level}</p> <p class="text-slate-600 text-sm">DOB: ${new Date(child.date_of_birth).toLocaleDateString()}</p> </div> <div class="flex gap-2"> <button class="text-primary-600 hover:text-primary-700"${addAttribute(child.id, "data-child-id")} data-action="edit">
+Edit
+</button> <button class="text-red-600 hover:text-red-700"${addAttribute(child.id, "data-child-id")} data-action="delete">
+Delete
+</button> </div> </div> ${child.medical_emergency_contact_info && renderTemplate`<div class="mt-2 text-sm"> <span class="font-medium">Medical Emergency Contact Info:</span> ${child.medical_emergency_contact_info} </div>`} </div>`)} </div>`} </div> </div> <!-- Add/Edit Child Modal --> <div id="childModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"> <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4"> <h3 class="text-xl font-semibold mb-4" id="modalTitle">Add Child</h3> <form id="childForm" class="space-y-4"> <input type="hidden" id="childId" name="childId"> <div class="grid grid-cols-2 gap-4"> <div> <label for="childFirstName" class="block text-sm font-medium text-slate-700 mb-1">First Name</label> <input type="text" id="childFirstName" name="firstName" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"> </div> <div> <label for="childLastName" class="block text-sm font-medium text-slate-700 mb-1">Last Name</label> <input type="text" id="childLastName" name="lastName" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"> </div> </div> <div> <label for="dateOfBirth" class="block text-sm font-medium text-slate-700 mb-1">Date of Birth</label> <input type="date" id="dateOfBirth" name="dateOfBirth" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"> </div> <div> <label for="grade" class="block text-sm font-medium text-slate-700 mb-1">Grade</label> <input type="text" id="grade" name="grade" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"> </div> <div> <label for="medicalInfo" class="block text-sm font-medium text-slate-700 mb-1">Medical Information (Optional)</label> <textarea id="medicalInfo" name="medicalInfo" rows="2" class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea> </div> <div class="flex justify-end gap-3 mt-6"> <button type="button" id="cancelBtn" class="px-4 py-2 text-slate-600 hover:text-slate-700">
+Cancel
+</button> <button type="submit" class="btn-primary">
+Save
+</button> </div> </form> </div> </div> ${renderScript($$result, "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/components/dashboard/ChildrenManager.astro?astro&type=script&index=0&lang.ts")}`;
+}, "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/components/dashboard/ChildrenManager.astro", void 0);
 
 const $$Astro = createAstro();
 const $$Index = createComponent(async ($$result, $$props, $$slots) => {
@@ -67,7 +85,8 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
             ) as progress
           FROM courses c 
           JOIN enrollments e ON e.course_id = c.id 
-          WHERE e.user_id = ?`,
+          JOIN children ch ON ch.id = e.child_id
+          WHERE ch.parent_user_id = ?`,
       args: [user.userId]
     });
     courses = result.rows.map((row) => ({
@@ -79,13 +98,24 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
       progress: Number(row.progress || 0)
     }));
   }
-  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": `Dashboard | ${isTeacher ? "Teacher" : "Student"}` }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="min-h-screen bg-slate-50"> <div class="bg-gradient-to-r from-primary-600 to-secondary-600 pb-32"> <header class="py-10"> <div class="container-custom"> <h1 class="text-white">Welcome, ${userData.first_name}!</h1> <p class="mt-2 text-primary-100"> ${isTeacher ? "Manage your courses and create new content" : "Track your progress and continue learning"} </p> </div> </header> </div> <main class="-mt-32"> <div class="container-custom"> <div class="grid grid-cols-1 gap-8 pb-12"> ${isTeacher ? renderTemplate`${renderComponent($$result2, "Fragment", Fragment, {}, { "default": async ($$result3) => renderTemplate`  <div class="bg-white rounded-lg shadow p-6"> <div class="flex justify-between items-center mb-6"> <h2 class="text-2xl font-bold">Your Courses</h2> <button class="btn-primary" onclick="document.getElementById('createCourseModal').classList.remove('hidden')">
+  let children = [];
+  if (userData.role === "parent") {
+    if (typeof userData.id === "number" && !isNaN(userData.id)) {
+      children = await getChildren(userData.id);
+    } else {
+      console.warn("Invalid user id for parent:", userData.id);
+      children = [];
+    }
+  }
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": `Dashboard | ${isTeacher ? "Teacher" : userData.role === "parent" ? "Parent" : "Student"}` }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="min-h-screen bg-slate-50"> <div class="bg-gradient-to-r from-primary-600 to-secondary-600 pb-32"> <header class="py-10"> <div class="container-custom"> <h1 class="text-white">Welcome, ${userData.first_name}!</h1> <p class="mt-2 text-primary-100"> ${isTeacher ? "Manage your courses and create new content" : userData.role === "parent" ? "Manage your children and their learning" : "Track your progress and continue learning"} </p> </div> </header> </div> <main class="-mt-32"> <div class="container-custom"> <div class="grid grid-cols-1 gap-8 pb-12"> ${isTeacher ? renderTemplate`${renderComponent($$result2, "Fragment", Fragment, {}, { "default": async ($$result3) => renderTemplate`  <div class="bg-white rounded-lg shadow p-6"> <div class="flex justify-between items-center mb-6"> <h2 class="text-2xl font-bold">Your Courses</h2> <button class="btn-primary" onclick="document.getElementById('createCourseModal').classList.remove('hidden')">
 Create New Course
 </button> </div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> ${courses.map((course) => renderTemplate`<div class="bg-white rounded-lg border border-slate-200 overflow-hidden"> <img${addAttribute(course.image, "src")}${addAttribute(course.title, "alt")} class="w-full h-48 object-cover"> <div class="p-4"> <h3 class="font-bold text-lg mb-2">${course.title}</h3> <p class="text-slate-600 text-sm mb-4">${course.description}</p> <div class="flex justify-between items-center"> <span class="text-primary-600 font-medium">$${course.price}</span> <div class="flex gap-2"> <a${addAttribute(`/courses/${course.id}/manage`, "href")} class="btn-outline text-sm">
 Manage
 </a> <a${addAttribute(`/courses/${course.id}`, "href")} class="btn-outline text-sm">
 View
-</a> </div> </div> </div> </div>`)} </div> </div>  ${renderComponent($$result3, "CourseForm", $$CourseForm, {})} ` })}` : renderTemplate`<!-- Student Dashboard -->
+</a> </div> </div> </div> </div>`)} </div> </div>  ${renderComponent($$result3, "CourseForm", $$CourseForm, {})} ` })}` : userData.role === "parent" ? renderTemplate`${renderComponent($$result2, "Fragment", Fragment, {}, { "default": async ($$result3) => renderTemplate`  <div class="space-y-8"> <div class="bg-white rounded-lg shadow p-6"> <h2 class="text-2xl font-bold mb-6">Children</h2> ${renderComponent($$result3, "ChildrenManager", $$ChildrenManager, { "children": children })} </div> <!-- Enrolled Courses --> <div class="bg-white rounded-lg shadow p-6"> <h2 class="text-2xl font-bold mb-6">Enrolled Courses</h2> ${children.length === 0 ? renderTemplate`<p class="text-slate-600">Add your children to enroll them in courses.</p>` : renderTemplate`<div class="space-y-4"> ${children.map((child) => renderTemplate`<div class="border rounded-lg p-4"> <h3 class="font-medium text-lg mb-2">${child.first_name ? `${child.first_name} ${child.last_name}` : "Child"}'s Courses</h3> ${Array.isArray(child.enrollments) && child.enrollments.some((e) => e && e.course && typeof e.course.id === "number" && !isNaN(e.course.id) && e.course.id !== null) ? renderTemplate`<div class="space-y-3"> ${child.enrollments.map((enrollment) => enrollment && enrollment.course && typeof enrollment.course.id === "number" && !isNaN(enrollment.course.id) && enrollment.course.id !== null ? renderTemplate`<div class="flex justify-between items-center"> <div> <p class="font-medium">${enrollment.course.title}</p> <p class="text-sm text-slate-600">Status: ${enrollment.status}</p> </div> <a${addAttribute(`/courses/${enrollment.course.id}`, "href")} class="text-primary-600 hover:text-primary-700">
+View Course
+</a> </div>` : null)} </div>` : renderTemplate`<p class="text-slate-600">No courses enrolled yet.</p>`} </div>`)} </div>`} </div> <!-- Recent Activity --> <div class="bg-white rounded-lg shadow p-6"> <h2 class="text-2xl font-bold mb-6">Recent Activity</h2> <div class="space-y-4"> ${children.length === 0 ? renderTemplate`<p class="text-slate-600">Add your children to see their activity.</p>` : renderTemplate`<div class="space-y-4"> ${children.map((child) => renderTemplate`<div class="border rounded-lg p-4"> <h3 class="font-medium text-lg mb-2">${child.first_name ? `${child.first_name} ${child.last_name}` : "Child"}'s Activity</h3> <p class="text-slate-600">No recent activity.</p> </div>`)} </div>`} </div> </div> </div> ` })}` : renderTemplate`<!-- Student Dashboard -->
             <div class="space-y-8"> <!-- Enrolled Courses --> <div class="bg-white rounded-lg shadow p-6"> <h2 class="text-2xl font-bold mb-6">Your Courses</h2> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> ${courses.map((course) => renderTemplate`<div class="bg-white rounded-lg border border-slate-200 overflow-hidden"> <img${addAttribute(course.image, "src")}${addAttribute(course.title, "alt")} class="w-full h-48 object-cover"> <div class="p-4"> <h3 class="font-bold text-lg mb-2">${course.title}</h3> <div class="mb-4"> <div class="flex justify-between text-sm text-slate-600 mb-1"> <span>Progress</span> <span>${course.progress}%</span> </div> <div class="w-full bg-slate-200 rounded-full h-2"> <div class="bg-primary-600 h-2 rounded-full"${addAttribute(`width: ${course.progress}%`, "style")}></div> </div> </div> <a${addAttribute(`/courses/${course.id}`, "href")} class="btn-primary w-full text-center"> ${course.progress === 0 ? "Start Course" : "Continue Learning"} </a> </div> </div>`)} </div> </div> <!-- Course Recommendations --> <div class="bg-white rounded-lg shadow p-6"> <h2 class="text-2xl font-bold mb-6">Recommended Courses</h2> <div class="grid grid-cols-1 md:grid-cols-3 gap-6"> <a href="/courses" class="flex items-center justify-center h-48 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 hover:border-primary-500 hover:bg-slate-100 transition-colors"> <div class="text-center"> <svg class="w-8 h-8 text-slate-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path> </svg> <span class="text-slate-600 font-medium">Explore More Courses</span> </div> </a> </div> </div> </div>`} </div> </div> </main> </div> ` })}`;
 }, "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/pages/dashboard/index.astro", void 0);
 

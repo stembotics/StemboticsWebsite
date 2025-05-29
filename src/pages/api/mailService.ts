@@ -112,12 +112,9 @@ const templates = {
     <h1>Course Enrollment Confirmation</h1>
     <p>Dear {{name}},</p>
     <p>You have successfully enrolled in <span class="highlight">{{courseName}}</span>.</p>
-    <p>Course details:</p>
-    <ul>
-      <li>Start Date: {{startDate}}</li>
-      <li>Duration: {{duration}}</li>
-      <li>Level: {{level}}</li>
-    </ul>
+    <p><strong>Important Payment Information:</strong></p>
+    <p>Payment links will be sent to your email one week before the first class. Please make sure to check your email regularly for updates.</p>
+    <p>In the meantime, you can explore the course content and structure under the course description on the course page.</p>
     <a href="https://stembotics.org/courses/{{courseId}}" class="button">Access Course</a>
   `,
 
@@ -231,9 +228,6 @@ export const sendCourseEnrollmentEmail = async (email: string, studentName: stri
   const content = replaceTemplateVars(templates.courseEnrollment, {
     name: studentName,
     courseName,
-    startDate: new Date().toLocaleDateString(),
-    duration: 'Self-paced',
-    level: 'Beginner',
     courseId: '1' // This should be replaced with actual course ID
   });
   return sendMail(

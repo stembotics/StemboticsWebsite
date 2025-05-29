@@ -4,6 +4,7 @@ import EnrollButton from '../../components/courses/EnrollButton.astro';
 import { db } from '../../lib/db';
 import { verifyToken } from '../../lib/auth';
 import type { Row } from '@libsql/client';
+import { getCourse, getChildren, type Child } from '../../lib/db';
 
 export const prerender = false;
 
@@ -41,7 +42,7 @@ interface WeeklyContent {
   [key: number]: ContentItem[];
 }
 
-interface Course extends Row {
+interface Course {
   id: number;
   title: string;
   description: string;
@@ -50,8 +51,10 @@ interface Course extends Row {
   duration: string;
   price: number;
   instructor_id: number;
-  instructor_name: string;
-  instructor_role: string;
+  instructor: {
+    name: string;
+    role: string;
+  };
   teacher_id: number;
   is_enrolled: boolean;
 }
@@ -68,15 +71,29 @@ const courseResult = await db.execute({
     FROM courses c
     JOIN users u ON c.instructor_id = u.id
     JOIN teachers t ON t.user_id = u.id
-    LEFT JOIN enrollments e ON e.course_id = c.id AND e.user_id = ?
+    LEFT JOIN enrollments e ON e.course_id = c.id AND e.child_id IN (
+      SELECT id FROM children WHERE parent_user_id = ?
+    )
     WHERE c.id = ?
   `,
   args: [user?.userId || null, parseInt(id, 10)]
 });
 
 const course = {
-  ...courseResult.rows[0],
-  is_enrolled: Boolean(courseResult.rows[0].is_enrolled)
+  id: Number(courseResult.rows[0]?.id),
+  title: String(courseResult.rows[0]?.title),
+  description: String(courseResult.rows[0]?.description),
+  image: String(courseResult.rows[0]?.image),
+  level: String(courseResult.rows[0]?.level),
+  duration: String(courseResult.rows[0]?.duration),
+  price: Number(courseResult.rows[0]?.price),
+  instructor_id: Number(courseResult.rows[0]?.instructor_id),
+  instructor: {
+    name: String(courseResult.rows[0]?.instructor_name || ''),
+    role: String(courseResult.rows[0]?.instructor_role || '')
+  },
+  teacher_id: Number(courseResult.rows[0]?.teacher_id),
+  is_enrolled: Boolean(courseResult.rows[0]?.is_enrolled || 0)
 } as Course;
 
 // Get course content preview grouped by week
@@ -107,16 +124,38 @@ const weeklyContent = contentResult.rows.reduce<WeeklyContent>((acc, row) => {
   });
   return acc;
 }, {});
+
+// Get children for parent accounts
+let children: Child[] = [];
+if (user?.role === 'parent' && user?.userId) {
+  children = await getChildren(user.userId);
+}
+
+if (!course) {
+  return Astro.redirect('/404');
+}
 ---
 
 <Layout title={`${course.title} | Stembotics Academy`}>
+  {course.is_enrolled && (
+    <div class="bg-primary-50 border-b border-primary-200">
+      <div class="container-custom py-3">
+        <div class="flex items-center justify-center text-primary-700">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <p>Please check your email for enrollment confirmation and payment details.</p>
+        </div>
+      </div>
+    </div>
+  )}
   <!-- Course Header -->
   <section class="bg-slate-900 text-white py-12">
     <div class="container-custom">
       <div class="grid lg:grid-cols-3 gap-12">
         <div class="lg:col-span-2">
           <h1 class="text-4xl font-bold mb-4 text-white">{course.title}</h1>
-          <p class="text-slate-300 text-lg mb-6">{course.description}</p>
+          <p id="course-description" class="text-slate-300 text-lg mb-6">{course.description}</p>
           <div class="flex flex-wrap gap-4 text-sm text-slate-300">
             <div class="flex items-center">
               <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -128,7 +167,7 @@ const weeklyContent = contentResult.rows.reduce<WeeklyContent>((acc, row) => {
               <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
               </svg>
-              {course.instructor_name}
+              {course.instructor.name}
             </div>
             <div class="flex items-center">
               <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -149,13 +188,54 @@ const weeklyContent = contentResult.rows.reduce<WeeklyContent>((acc, row) => {
             />
             <div class="p-6">
               <div class="flex justify-between items-center mb-4">
-                <div class="text-3xl font-bold text-slate-900">${course.price}</div>
+                <div class="text-3xl font-bold text-slate-900">${course.price}/month</div>
               </div>
               <div class="space-y-4">
-                <EnrollButton 
-                  courseId={course.id.toString()}
-                  isEnrolled={course.is_enrolled}
-                />
+                {user?.role === 'parent' ? (
+                  children.length === 0 ? (
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p class="text-yellow-800">
+                        Please add your children to your account before enrolling in courses.
+                        <a href="/dashboard" class="text-yellow-900 underline ml-1">Go to Dashboard</a>
+                      </p>
+                    </div>
+                  ) : (
+                    <form id="enrollmentForm" class="space-y-4">
+                      <div>
+                        <label for="childId" class="block text-sm font-medium text-slate-700 mb-1">
+                          Select Child
+                        </label>
+                        <select
+                          id="childId"
+                          name="childId"
+                          required
+                          class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-slate-900"
+                        >
+                          <option value="">Choose a child...</option>
+                          {children.map((child: Child) => (
+                            <option value={child.id}>
+                              {child.first_name} {child.last_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        type="submit"
+                        class="w-full btn-primary"
+                      >
+                        Enroll Child
+                      </button>
+                    </form>
+                  )
+                ) : (
+                  <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p class="text-yellow-800">
+                      This course is only available for children. Please sign up as a parent to enroll your children.
+                      <a href="/signup" class="text-yellow-900 underline ml-1">Sign Up as Parent</a>
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -220,11 +300,52 @@ const weeklyContent = contentResult.rows.reduce<WeeklyContent>((acc, row) => {
           {!course.is_enrolled && (
             <div class="bg-white rounded-lg shadow p-6 sticky top-6">
               <div class="text-center">
-                <p class="text-3xl font-bold text-slate-900">${course.price}</p>
-                <EnrollButton 
-                  courseId={course.id.toString()}
-                  isEnrolled={course.is_enrolled}
-                />
+                <p class="text-3xl font-bold text-slate-900">${course.price}/month</p>
+                {user?.role === 'parent' ? (
+                  children.length === 0 ? (
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p class="text-yellow-800">
+                        Please add your children to your account before enrolling in courses.
+                        <a href="/dashboard" class="text-yellow-900 underline ml-1">Go to Dashboard</a>
+                      </p>
+                    </div>
+                  ) : (
+                    <form id="enrollmentForm" class="space-y-4">
+                      <div>
+                        <label for="childId" class="block text-sm font-medium text-slate-700 mb-1">
+                          Select Child
+                        </label>
+                        <select
+                          id="childId"
+                          name="childId"
+                          required
+                          class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-slate-900"
+                        >
+                          <option value="">Choose a child...</option>
+                          {children.map((child: Child) => (
+                            <option value={child.id}>
+                              {child.first_name} {child.last_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        type="submit"
+                        class="w-full btn-primary"
+                      >
+                        Enroll Child
+                      </button>
+                    </form>
+                  )
+                ) : (
+                  <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p class="text-yellow-800">
+                      This course is only available for children. Please sign up as a parent to enroll your children.
+                      <a href="/signup" class="text-yellow-900 underline ml-1">Sign Up as Parent</a>
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -243,10 +364,10 @@ const weeklyContent = contentResult.rows.reduce<WeeklyContent>((acc, row) => {
             href={`/teachers/${course.teacher_id}`}
             class="hover:text-primary-600 transition-colors"
           >
-            {course.instructor_name}
+            {course.instructor.name}
           </a>
         </h3>
-        <p class="text-slate-600 mt-1">{course.instructor_role}</p>
+        <p class="text-slate-600 mt-1">{course.instructor.role}</p>
       </div>
       <a 
         href={`/teachers/${course.teacher_id}`}
@@ -267,6 +388,45 @@ const weeklyContent = contentResult.rows.reduce<WeeklyContent>((acc, row) => {
         content?.classList.toggle('hidden');
         arrow?.classList.toggle('rotate-180');
       });
+    });
+
+    // Handle course description newlines
+    const description = document.getElementById('course-description');
+    if (description) {
+      description.innerHTML = description.textContent?.replace(/\\n/g, '<br>') || '';
+    }
+
+    const form = document.getElementById('enrollmentForm') as HTMLFormElement;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const data = {
+        childId: formData.get('childId'),
+        courseId: window.location.pathname.split('/').pop()
+      };
+
+      try {
+        const response = await fetch('/api/courses/enroll', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1]}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Enrollment failed');
+        }
+
+        window.location.href = '/dashboard';
+      } catch (error: any) {
+        alert(error.message || 'An error occurred during enrollment');
+      }
     });
   </script>
 </Layout>

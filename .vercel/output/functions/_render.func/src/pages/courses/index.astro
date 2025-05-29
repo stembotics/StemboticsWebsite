@@ -12,29 +12,36 @@ const token = Astro.cookies.get('token');
 const user = token ? verifyToken(token.value) : null;
 const likedCourses = Astro.cookies.get('liked_courses')?.value?.split(',') || [];
 
-// Get all courses with instructor info and enrollment status
-const courses = await db.execute({
+// Get courses with enrollment status and likes
+const result = await db.execute({
   sql: `
     SELECT 
       c.*,
-      u.first_name as instructor_first_name,
-      u.last_name as instructor_last_name,
+      u.first_name || ' ' || u.last_name as instructor_name,
+      t.id as teacher_id,
+      t.current_role as instructor_role,
       CASE WHEN e.id IS NOT NULL THEN 1 ELSE 0 END as is_enrolled,
       COUNT(DISTINCT cl.id) as like_count,
       CASE WHEN user_likes.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
     FROM courses c
-    LEFT JOIN users u ON c.instructor_id = u.id
-    LEFT JOIN enrollments e ON c.id = e.course_id AND e.user_id = ?
+    JOIN users u ON c.instructor_id = u.id
+    JOIN teachers t ON t.user_id = u.id
+    LEFT JOIN enrollments e ON e.course_id = c.id AND e.child_id IN (
+      SELECT id FROM children WHERE parent_user_id = ?
+    )
     LEFT JOIN course_likes cl ON c.id = cl.course_id
     LEFT JOIN course_likes user_likes ON c.id = user_likes.course_id AND user_likes.user_id = ?
     GROUP BY c.id
+    ORDER BY c.created_at DESC
   `,
-  args: [user?.userId || 0, user?.userId || 0]
-}).then(result => result.rows.map(row => {
+  args: [user?.userId || null, user?.userId || null]
+});
+
+const courses = result.rows.map(row => {
   const courseId = String(row.id);
   const isLiked = user 
-    ? Boolean(row.is_liked)
-    : likedCourses.includes(courseId);
+    ? likedCourses.includes(courseId)
+    : false;
 
   return {
     id: courseId,
@@ -45,14 +52,14 @@ const courses = await db.execute({
     duration: String(row.duration),
     price: Number(row.price),
     instructor: {
-      firstName: String(row.instructor_first_name),
-      lastName: String(row.instructor_last_name)
+      name: String(row.instructor_name),
+      role: String(row.instructor_role)
     },
     isEnrolled: Boolean(row.is_enrolled),
     likeCount: Number(row.like_count),
     isLiked
   };
-}));
+});
 
 const getCoursesData = await getCourses();
 ---

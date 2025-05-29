@@ -1,6 +1,5 @@
-import { v as verifyToken, d as db } from '../../../chunks/auth_C2fVUnyh.mjs';
-import { c as sendCourseCreatedEmail } from '../../../chunks/mailService_CEJTORmm.mjs';
-import { randomUUID } from 'crypto';
+import { v as verifyToken, d as db } from '../../../chunks/auth_DTf2el9S.mjs';
+import { c as sendCourseCreatedEmail } from '../../../chunks/mailService_DS7jSZO7.mjs';
 export { r as renderers } from '../../../chunks/internal_BsTt5pTQ.mjs';
 
 const POST = async ({ request, cookies }) => {
@@ -26,12 +25,16 @@ const POST = async ({ request, cookies }) => {
         headers: { "Content-Type": "application/json" }
       });
     }
-    const courseId = randomUUID();
-    await db.execute({
-      sql: `INSERT INTO courses (id, title, description, image, level, duration, price, instructor_id) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [courseId, title, description, image, level, duration, price, user.userId]
+    const result = await db.execute({
+      sql: `INSERT INTO courses (title, description, image, level, duration, price, instructor_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            RETURNING id`,
+      args: [title, description, image, level, duration, Number(price), user.userId]
     });
+    const courseId = String(result.rows[0]?.id ?? "");
+    if (!courseId) {
+      throw new Error("Failed to create course: No ID returned");
+    }
     const teacherResult = await db.execute({
       sql: "SELECT first_name, last_name, email FROM users WHERE id = ?",
       args: [user.userId]

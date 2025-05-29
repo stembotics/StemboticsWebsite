@@ -1,0 +1,452 @@
+-- Script to reset and restructure the entire database for SQLite
+-- based on the provided JSON schema, with specified modifications.
+-- WARNING: This script will delete ALL existing data in the specified tables.
+-- Ensure you have backups if necessary.
+
+-- For foreign key constraints to be enforced in SQLite,
+-- you MUST execute "PRAGMA foreign_keys = ON;" for each connection.
+-- Example:
+-- sqlite> PRAGMA foreign_keys = ON;
+
+-- -----------------------------------------------------------------------------
+-- Section 1: Drop existing tables (in reverse order of dependency)
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS product_images;
+DROP TABLE IF EXISTS product_features;
+DROP TABLE IF EXISTS progress;
+DROP TABLE IF EXISTS course_likes;
+DROP TABLE IF EXISTS class_attendance;
+DROP TABLE IF EXISTS session_notes;
+DROP TABLE IF EXISTS teacher_achievements;
+DROP TABLE IF EXISTS enrollments;
+DROP TABLE IF EXISTS course_content;
+DROP TABLE IF EXISTS shopping_carts;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS class_sessions;
+DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS children; -- New table
+DROP TABLE IF EXISTS teachers;
+DROP TABLE IF EXISTS users;
+
+-- -----------------------------------------------------------------------------
+-- Section 2: Create Tables
+-- -----------------------------------------------------------------------------
+PRAGMA foreign_keys = ON;
+-- Users Table
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'teacher', 'admin', 'parent')), -- Added 'parent' role
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Children Table (NEW)
+CREATE TABLE children (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    date_of_birth DATE NOT NULL, -- Store as TEXT in 'YYYY-MM-DD' format
+    grade_level TEXT, -- e.g., 'K', '1', 'Pre-K', 'Nursery'
+    parent_user_id INTEGER NOT NULL,
+    medical_emergency_contact_info TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(parent_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Teachers Table
+CREATE TABLE teachers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE,
+    phone TEXT,
+    bio TEXT,
+    current_role TEXT,
+    education TEXT,
+    teaching_experience TEXT,
+    experience TEXT,
+    location TEXT,
+    profile_image TEXT,
+    linkedin TEXT,
+    portfolio TEXT,
+    twitter TEXT,
+    github TEXT,
+    youtube TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+-- Teacher Achievements Table
+CREATE TABLE teacher_achievements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    teacher_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    issuer TEXT,
+    date TEXT, -- Assuming this is a date, consider DATE type if format is consistent
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (teacher_id) REFERENCES teachers (id) ON DELETE CASCADE
+);
+
+-- Courses Table
+CREATE TABLE courses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    image TEXT NOT NULL, -- URL or path to image
+    level TEXT NOT NULL CHECK (level IN ('Beginner', 'Intermediate', 'Advanced')),
+    duration TEXT NOT NULL, -- e.g., '8 weeks', '3 hours'
+    instructor_id INTEGER NOT NULL, -- References users.id (user with 'teacher' role)
+    price DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (instructor_id) REFERENCES users (id) ON DELETE CASCADE -- Or SET NULL if courses can exist without an instructor
+);
+
+-- Course Content Table
+CREATE TABLE course_content (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    course_id INTEGER NOT NULL,
+    week_number INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('video', 'quiz', 'assignment', 'reading')),
+    content TEXT NOT NULL, -- Could be URL, JSON, or markdown
+    order_index INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE
+);
+
+-- Enrollments Table (MODIFIED)
+CREATE TABLE enrollments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    child_id INTEGER NOT NULL, -- Changed from user_id, references children.id
+    course_id INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('active', 'completed', 'withdrawn', 'pending', 'cancelled')), -- Added status
+    enrollment_date DATETIME DEFAULT CURRENT_TIMESTAMP, -- Renamed from enrolled_at
+    completed_at DATETIME,
+    notes TEXT, -- Added notes field
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added created_at
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (child_id) REFERENCES children (id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
+    UNIQUE (child_id, course_id)
+);
+
+-- Progress Table
+CREATE TABLE progress (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    enrollment_id INTEGER NOT NULL,
+    content_id INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('not_started', 'in_progress', 'completed')),
+    completed_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (enrollment_id) REFERENCES enrollments (id) ON DELETE CASCADE,
+    FOREIGN KEY (content_id) REFERENCES course_content (id) ON DELETE CASCADE,
+    UNIQUE (enrollment_id, content_id)
+);
+
+-- Course Likes Table
+CREATE TABLE course_likes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    course_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL, -- User who liked the course
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    UNIQUE (course_id, user_id)
+);
+
+-- Class Sessions Table
+CREATE TABLE class_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    course_id INTEGER NOT NULL,
+    session_date DATE NOT NULL, -- Store as TEXT 'YYYY-MM-DD'
+    notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE
+);
+
+-- Class Attendance Table (MODIFIED)
+CREATE TABLE class_attendance (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    child_id INTEGER NOT NULL, -- Changed from student_id, references children.id
+    session_id INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'pending', 'missed', 'attended', 'absent')), -- Expanded status options
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (child_id) REFERENCES children (id) ON DELETE CASCADE,
+    FOREIGN KEY (session_id) REFERENCES class_sessions (id) ON DELETE CASCADE,
+    UNIQUE (child_id, session_id)
+);
+
+-- Session Notes Table
+CREATE TABLE session_notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER NOT NULL,
+    note TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (session_id) REFERENCES class_sessions (id) ON DELETE CASCADE
+);
+
+-- Products Table
+CREATE TABLE products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    stock INTEGER NOT NULL DEFAULT 0,
+    stripe_product_id TEXT,
+    stripe_price_id TEXT,
+    category TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Product Images Table
+CREATE TABLE product_images (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    url TEXT NOT NULL,
+    alt_text TEXT,
+    display_order INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+);
+
+-- Product Features Table
+CREATE TABLE product_features (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    feature TEXT NOT NULL,
+    display_order INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+);
+
+-- Shopping Carts Table
+CREATE TABLE shopping_carts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE, -- Typically one cart per user
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+-- Cart Items Table
+CREATE TABLE cart_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cart_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cart_id) REFERENCES shopping_carts (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    UNIQUE(cart_id, product_id)
+);
+
+-- Orders Table
+CREATE TABLE orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    stripe_session_id TEXT UNIQUE, -- Stripe session ID should be unique if present
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded')),
+    total_amount DECIMAL(10, 2) NOT NULL,
+    shipping_address TEXT, -- Consider normalizing if complex
+    billing_address TEXT,  -- Consider normalizing if complex
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE -- Or SET NULL if orders should persist after user deletion
+);
+
+-- Order Items Table
+CREATE TABLE order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    price_at_time DECIMAL(10, 2) NOT NULL, -- Price of product when order was placed
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL -- Product might be deleted, but order item should persist
+);
+
+-- -----------------------------------------------------------------------------
+-- Section 3: Create Triggers for updated_at
+-- -----------------------------------------------------------------------------
+
+CREATE TRIGGER set_timestamp_users_after_update
+AFTER UPDATE ON users FOR EACH ROW
+BEGIN UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_children_after_update
+AFTER UPDATE ON children FOR EACH ROW
+BEGIN UPDATE children SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_teachers_after_update
+AFTER UPDATE ON teachers FOR EACH ROW
+BEGIN UPDATE teachers SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_teacher_achievements_after_update
+AFTER UPDATE ON teacher_achievements FOR EACH ROW
+BEGIN UPDATE teacher_achievements SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_courses_after_update
+AFTER UPDATE ON courses FOR EACH ROW
+BEGIN UPDATE courses SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_course_content_after_update
+AFTER UPDATE ON course_content FOR EACH ROW
+BEGIN UPDATE course_content SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_enrollments_after_update
+AFTER UPDATE ON enrollments FOR EACH ROW
+BEGIN UPDATE enrollments SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_progress_after_update
+AFTER UPDATE ON progress FOR EACH ROW
+BEGIN UPDATE progress SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_course_likes_after_update
+AFTER UPDATE ON course_likes FOR EACH ROW
+BEGIN UPDATE course_likes SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_class_sessions_after_update
+AFTER UPDATE ON class_sessions FOR EACH ROW
+BEGIN UPDATE class_sessions SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_class_attendance_after_update
+AFTER UPDATE ON class_attendance FOR EACH ROW
+BEGIN UPDATE class_attendance SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_session_notes_after_update
+AFTER UPDATE ON session_notes FOR EACH ROW
+BEGIN UPDATE session_notes SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_products_after_update
+AFTER UPDATE ON products FOR EACH ROW
+BEGIN UPDATE products SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_product_images_after_update
+AFTER UPDATE ON product_images FOR EACH ROW
+BEGIN UPDATE product_images SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_product_features_after_update
+AFTER UPDATE ON product_features FOR EACH ROW
+BEGIN UPDATE product_features SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_shopping_carts_after_update
+AFTER UPDATE ON shopping_carts FOR EACH ROW
+BEGIN UPDATE shopping_carts SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_cart_items_after_update
+AFTER UPDATE ON cart_items FOR EACH ROW
+BEGIN UPDATE cart_items SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_orders_after_update
+AFTER UPDATE ON orders FOR EACH ROW
+BEGIN UPDATE orders SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+CREATE TRIGGER set_timestamp_order_items_after_update
+AFTER UPDATE ON order_items FOR EACH ROW
+BEGIN UPDATE order_items SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id; END;
+
+-- -----------------------------------------------------------------------------
+-- Section 4: Create Indexes for Performance
+-- -----------------------------------------------------------------------------
+
+-- users
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+
+-- children
+CREATE INDEX idx_children_parent_user_id ON children(parent_user_id);
+CREATE INDEX idx_children_last_name ON children(last_name);
+CREATE INDEX idx_children_grade_level ON children(grade_level);
+
+-- teachers
+CREATE INDEX idx_teachers_user_id ON teachers(user_id);
+
+-- teacher_achievements
+CREATE INDEX idx_teacher_achievements_teacher_id ON teacher_achievements(teacher_id);
+
+-- courses
+CREATE INDEX idx_courses_instructor_id ON courses(instructor_id);
+CREATE INDEX idx_courses_title ON courses(title);
+CREATE INDEX idx_courses_level ON courses(level);
+
+-- course_content
+CREATE INDEX idx_course_content_course_id ON course_content(course_id);
+CREATE INDEX idx_course_content_type ON course_content(type);
+
+-- enrollments
+CREATE INDEX idx_enrollments_child_id ON enrollments(child_id);
+CREATE INDEX idx_enrollments_course_id ON enrollments(course_id);
+CREATE INDEX idx_enrollments_status ON enrollments(status);
+
+-- progress
+CREATE INDEX idx_progress_enrollment_id ON progress(enrollment_id);
+CREATE INDEX idx_progress_content_id ON progress(content_id);
+CREATE INDEX idx_progress_status ON progress(status);
+
+-- course_likes
+CREATE INDEX idx_course_likes_course_id ON course_likes(course_id);
+CREATE INDEX idx_course_likes_user_id ON course_likes(user_id);
+
+-- class_sessions
+CREATE INDEX idx_class_sessions_course_id ON class_sessions(course_id);
+CREATE INDEX idx_class_sessions_session_date ON class_sessions(session_date);
+
+-- class_attendance
+CREATE INDEX idx_class_attendance_child_id ON class_attendance(child_id);
+CREATE INDEX idx_class_attendance_session_id ON class_attendance(session_id);
+CREATE INDEX idx_class_attendance_status ON class_attendance(status);
+
+-- session_notes
+CREATE INDEX idx_session_notes_session_id ON session_notes(session_id);
+
+-- products
+CREATE INDEX idx_products_name ON products(name);
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_products_stripe_product_id ON products(stripe_product_id);
+
+-- product_images
+CREATE INDEX idx_product_images_product_id ON product_images(product_id);
+
+-- product_features
+CREATE INDEX idx_product_features_product_id ON product_features(product_id);
+
+-- shopping_carts
+CREATE INDEX idx_shopping_carts_user_id ON shopping_carts(user_id);
+
+-- cart_items
+CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX idx_cart_items_product_id ON cart_items(product_id);
+
+-- orders
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_stripe_session_id ON orders(stripe_session_id);
+
+-- order_items
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+
+-- End of script

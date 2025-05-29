@@ -1,6 +1,6 @@
-import { s as signup, d as db } from '../../../chunks/auth_C2fVUnyh.mjs';
+import { s as signup, d as db } from '../../../chunks/auth_DTf2el9S.mjs';
 import { z } from 'zod';
-import { a as sendWelcomeTeacherEmail } from '../../../chunks/mailService_CEJTORmm.mjs';
+import { a as sendWelcomeTeacherEmail } from '../../../chunks/mailService_DS7jSZO7.mjs';
 export { r as renderers } from '../../../chunks/internal_BsTt5pTQ.mjs';
 
 const teacherSignupSchema = z.object({

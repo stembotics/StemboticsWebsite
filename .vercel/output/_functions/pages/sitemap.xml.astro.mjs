@@ -5,7 +5,7 @@ import 'clsx';
 import { version } from 'vite';
 import 'common-ancestor-path';
 import 'es-module-lexer';
-import '../chunks/astro-designed-error-pages_CKIgNTY2.mjs';
+import '../chunks/astro-designed-error-pages_CK-BVFj_.mjs';
 import 'xxhash-wasm';
 import { syntaxHighlightDefaults, markdownConfigDefaults } from '@astrojs/markdown-remark';
 import 'github-slugger';

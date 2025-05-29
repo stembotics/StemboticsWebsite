@@ -108,12 +108,9 @@ const templates = {
     <h1>Course Enrollment Confirmation</h1>
     <p>Dear {{name}},</p>
     <p>You have successfully enrolled in <span class="highlight">{{courseName}}</span>.</p>
-    <p>Course details:</p>
-    <ul>
-      <li>Start Date: {{startDate}}</li>
-      <li>Duration: {{duration}}</li>
-      <li>Level: {{level}}</li>
-    </ul>
+    <p><strong>Important Payment Information:</strong></p>
+    <p>Payment links will be sent to your email one week before the first class. Please make sure to check your email regularly for updates.</p>
+    <p>In the meantime, you can explore the course content and structure under the course description on the course page.</p>
     <a href="https://stembotics.org/courses/{{courseId}}" class="button">Access Course</a>
   `,
   courseCreated: `
@@ -212,9 +209,6 @@ const sendCourseEnrollmentEmail = async (email, studentName, courseName) => {
   const content = replaceTemplateVars(templates.courseEnrollment, {
     name: studentName,
     courseName,
-    startDate: (/* @__PURE__ */ new Date()).toLocaleDateString(),
-    duration: "Self-paced",
-    level: "Beginner",
     courseId: "1"
     // This should be replaced with actual course ID
   });
@@ -291,4 +285,4 @@ const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   sendWelcomeTeacherEmail
 }, Symbol.toStringTag, { value: 'Module' }));
 
-export { _page as _, sendWelcomeTeacherEmail as a, sendContactFormNotification as b, sendCourseCreatedEmail as c, sendCourseEnrollmentEmail as d, sendWelcomeStudentEmail as s };
+export { _page as _, sendWelcomeTeacherEmail as a, sendContactFormNotification as b, sendCourseCreatedEmail as c, sendWelcomeStudentEmail as s };

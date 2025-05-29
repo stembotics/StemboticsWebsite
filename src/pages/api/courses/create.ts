@@ -2,7 +2,6 @@ import type { APIRoute } from 'astro';
 import { db } from '../../../lib/db';
 import { verifyToken } from '../../../lib/auth';
 import { sendCourseCreatedEmail } from '../mailService';
-import { randomUUID } from 'crypto';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -31,14 +30,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    const courseId = randomUUID();
-
     // Create the course
-    await db.execute({
-      sql: `INSERT INTO courses (id, title, description, image, level, duration, price, instructor_id) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [courseId, title, description, image, level, duration, price, user.userId]
+    const result = await db.execute({
+      sql: `INSERT INTO courses (title, description, image, level, duration, price, instructor_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            RETURNING id`,
+      args: [title, description, image, level, duration, Number(price), user.userId]
     });
+
+    const courseId = String(result.rows[0]?.id ?? '');
+    if (!courseId) {
+      throw new Error('Failed to create course: No ID returned');
+    }
 
     // Get teacher details for email
     const teacherResult = await db.execute({

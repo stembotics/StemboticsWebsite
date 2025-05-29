@@ -1,13 +1,14 @@
-import { s as signup } from '../../../chunks/auth_C2fVUnyh.mjs';
+import { s as signup } from '../../../chunks/auth_DTf2el9S.mjs';
 import { z } from 'zod';
-import { s as sendWelcomeStudentEmail } from '../../../chunks/mailService_CEJTORmm.mjs';
+import { s as sendWelcomeStudentEmail } from '../../../chunks/mailService_DS7jSZO7.mjs';
 export { r as renderers } from '../../../chunks/internal_BsTt5pTQ.mjs';
 
 const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   firstName: z.string().min(1),
-  lastName: z.string().min(1)
+  lastName: z.string().min(1),
+  role: z.enum(["student", "teacher", "parent", "admin"]).optional()
 });
 const POST = async ({ request }) => {
   try {
@@ -17,7 +18,7 @@ const POST = async ({ request }) => {
       password: data.password,
       firstName: data.firstName,
       lastName: data.lastName,
-      role: "student"
+      role: data.role
     });
     await sendWelcomeStudentEmail(data.email, `${data.firstName} ${data.lastName}`);
     return new Response(JSON.stringify({ token, user }), {

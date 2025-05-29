@@ -4,17 +4,21 @@ import { createUser, getUserByEmail } from './db';
 
 const secret = process.env.JWT_SECRET || 'your-secret-key';
 
-interface User {
-  id: string | number;
+export type UserRole = 'student' | 'teacher' | 'parent' | 'admin';
+
+export interface User {
+  id: number;
   email: string;
-  role: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
   password_hash?: string;
 }
 
-interface TokenPayload {
-  userId: string | number;
+export interface TokenPayload {
+  userId: number;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 interface SignupData {
