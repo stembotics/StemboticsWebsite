@@ -1,4 +1,4 @@
-import { v as verifyToken, d as db } from '../../../../chunks/auth_DTf2el9S.mjs';
+import { v as verifyToken, d as db } from '../../../../chunks/auth_DGYWq9VH.mjs';
 export { r as renderers } from '../../../../chunks/internal_BsTt5pTQ.mjs';
 
 const DELETE = async ({ params, cookies }) => {

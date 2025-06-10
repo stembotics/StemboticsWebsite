@@ -206,19 +206,25 @@ type Activity = {
                           <h3 class="font-medium text-lg mb-2">{child.first_name ? `${child.first_name} ${child.last_name}` : 'Child'}'s Courses</h3>
                           {Array.isArray(child.enrollments) && child.enrollments.some(e => e && e.course && typeof e.course.id === 'number' && !isNaN(e.course.id) && e.course.id !== null) ? (
                             <div class="space-y-3">
-                              {child.enrollments.map((enrollment: Enrollment) => (
+                              {child.enrollments.map((enrollment: Enrollment, idx) => (
                                 enrollment && enrollment.course && typeof enrollment.course.id === 'number' && !isNaN(enrollment.course.id) && enrollment.course.id !== null ? (
                                   <div class="flex justify-between items-center">
                                     <div>
                                       <p class="font-medium">{enrollment.course.title}</p>
                                       <p class="text-sm text-slate-600">Status: {enrollment.status}</p>
                                     </div>
-                                    <a 
-                                      href={`/courses/${enrollment.course.id}`}
-                                      class="text-primary-600 hover:text-primary-700"
+                                    <button
+                                      type="button"
+                                      class="text-primary-600 hover:text-primary-700 view-course-btn"
+                                      data-child={encodeURIComponent(JSON.stringify({
+                                        childName: child.first_name + ' ' + child.last_name,
+                                        ...enrollment,
+                                        course: enrollment.course
+                                      }))}
+                                      data-idx={idx}
                                     >
                                       View Course
-                                    </a>
+                                    </button>
                                   </div>
                                 ) : null
                               ))}
@@ -309,4 +315,76 @@ type Activity = {
       </div>
     </main>
   </div>
+
+  <!-- Modal -->
+  <div id="courseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+      <button id="closeModalBtn" class="absolute top-2 right-2 text-slate-500 hover:text-slate-700">&times;</button>
+      <h2 class="text-2xl font-bold mb-2" id="modalCourseTitle"></h2>
+      <p class="mb-2 text-slate-700" id="modalCourseDesc"></p>
+      <div class="mb-2">
+        <span class="font-medium">Instructor:</span> <span id="modalInstructor"></span>
+      </div>
+      <div class="mb-2">
+        <span class="font-medium">Status:</span> <span id="modalStatus"></span>
+      </div>
+      <div class="mb-2">
+        <span class="font-medium">Next Class:</span> <span id="modalNextClass"></span>
+      </div>
+      <div class="mb-2">
+        <span class="font-medium">Time Slot:</span> <span id="modalTimeSlot"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal logic
+    const modal = document.getElementById('courseModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const viewBtns = document.querySelectorAll('.view-course-btn');
+
+    function getNextClass(dayOfWeek: string, startTime: string) {
+      if (!dayOfWeek || !startTime) return 'N/A';
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const now = new Date();
+      const todayIdx = now.getDay();
+      const slotIdx = days.indexOf(dayOfWeek);
+      let daysUntil = slotIdx - todayIdx;
+      if (daysUntil < 0 || (daysUntil === 0 && startTime <= now.toTimeString().slice(0,5))) daysUntil += 7;
+      const nextClass = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntil);
+      const [h, m] = startTime.split(':');
+      nextClass.setHours(Number(h), Number(m), 0, 0);
+      return nextClass.toLocaleString();
+    }
+
+    viewBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dataAttr = btn.getAttribute('data-child');
+        if (!dataAttr) return;
+        const data = JSON.parse(decodeURIComponent(dataAttr));
+        const titleEl = document.getElementById('modalCourseTitle');
+        const descEl = document.getElementById('modalCourseDesc');
+        const instrEl = document.getElementById('modalInstructor');
+        const statusEl = document.getElementById('modalStatus');
+        const nextClassEl = document.getElementById('modalNextClass');
+        const timeSlotEl = document.getElementById('modalTimeSlot');
+        if (titleEl) titleEl.textContent = data.course.title;
+        if (descEl) descEl.textContent = data.course.description || '';
+        if (instrEl) instrEl.textContent = data.course.instructor || 'N/A';
+        if (statusEl) statusEl.textContent = data.status;
+        if (data.time_slot) {
+          if (timeSlotEl) timeSlotEl.textContent = `${data.time_slot.day_of_week} ${data.time_slot.start_time} - ${data.time_slot.end_time}`;
+          if (nextClassEl) nextClassEl.textContent = getNextClass(data.time_slot.day_of_week, data.time_slot.start_time);
+        } else {
+          if (timeSlotEl) timeSlotEl.textContent = 'N/A';
+          if (nextClassEl) nextClassEl.textContent = 'N/A';
+        }
+        if (modal) modal.classList.remove('hidden');
+      });
+    });
+    if (closeModalBtn && modal) {
+      closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    }
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal) modal.classList.add('hidden'); });
+  </script>
 </Layout>

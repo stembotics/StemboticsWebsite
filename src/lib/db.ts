@@ -116,24 +116,16 @@ export async function signup({ email, password, firstName, lastName, role = 'stu
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  
-  // Ensure the provided role is a valid UserRole, default to 'student' if not provided or invalid
   const userRole: UserRole = (role && ['student', 'teacher', 'parent', 'admin'].includes(role)) ? role as UserRole : 'student';
-
   const user = await createUser({ email, passwordHash, firstName, lastName, role: userRole });
-  
-  const token = jwt.sign({ userId: user.id, role: user.role }, authToken, { expiresIn: '7d' });
-  
-  // Send welcome email based on role (assuming sendWelcomeStudentEmail is for both student and parent for now)
+  const token = jwt.sign({ userId: user.id, role: user.role }, authToken!, { expiresIn: '7d' });
   await sendWelcomeStudentEmail(user.email, `${user.firstName} ${user.lastName}`);
-
   return { token, user: { ...user, password_hash: undefined } };
 }
 
 export async function verifyToken(token: string): Promise<User | null> {
   try {
-    const decoded = jwt.verify(token, authToken) as { userId: number; role: string };
-    // Optionally fetch user from DB to ensure they still exist
+    const decoded = jwt.verify(token, authToken!) as { userId: number; role: string };
     const user = await getUserById(decoded.userId);
     if (user) {
       return {
@@ -184,8 +176,15 @@ export interface Child {
     course: {
       id: number;
       title: string;
+      description?: string;
+      instructor: string;
     };
     status: string;
+    time_slot?: {
+      day_of_week: string;
+      start_time: string;
+      end_time: string;
+    } | null;
   }>;
 }
 
@@ -224,14 +223,26 @@ export async function getChildren(parentId: number): Promise<Child[]> {
             'id', e.id,
             'course', json_object(
               'id', co.id,
-              'title', co.title
+              'title', co.title,
+              'description', co.description,
+              'instructor', (
+                SELECT u.first_name || ' ' || u.last_name
+                FROM users u
+                WHERE u.id = co.instructor_id
+              )
             ),
-            'status', e.status
+            'status', e.status,
+            'time_slot', CASE WHEN ts.id IS NOT NULL THEN json_object(
+              'day_of_week', ts.day_of_week,
+              'start_time', ts.start_time,
+              'end_time', ts.end_time
+            ) ELSE NULL END
           )
         ) as enrollments
       FROM children c
       LEFT JOIN enrollments e ON c.id = e.child_id
       LEFT JOIN courses co ON e.course_id = co.id
+      LEFT JOIN time_slots ts ON e.time_slot_id = ts.id
       WHERE c.parent_user_id = ?
       GROUP BY c.id
     `,

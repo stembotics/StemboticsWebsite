@@ -30,6 +30,7 @@ DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS children; -- New table
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS time_slots;
 
 -- -----------------------------------------------------------------------------
 -- Section 2: Create Tables
@@ -137,8 +138,10 @@ CREATE TABLE enrollments (
     notes TEXT, -- Added notes field
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added created_at
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
+    time_slot_id INTEGER,
     FOREIGN KEY (child_id) REFERENCES children (id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
+    FOREIGN KEY (time_slot_id) REFERENCES time_slots (id),
     UNIQUE (child_id, course_id)
 );
 
@@ -286,6 +289,20 @@ CREATE TABLE order_items (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Added updated_at
     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL -- Product might be deleted, but order item should persist
+);
+
+-- Time Slots Table
+CREATE TABLE time_slots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    course_id INTEGER NOT NULL,
+    day_of_week TEXT NOT NULL CHECK (day_of_week IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    max_capacity INTEGER NOT NULL DEFAULT 10,
+    current_enrollment INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE
 );
 
 -- -----------------------------------------------------------------------------
@@ -448,5 +465,8 @@ CREATE INDEX idx_orders_stripe_session_id ON orders(stripe_session_id);
 -- order_items
 CREATE INDEX idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+
+-- time_slots
+CREATE INDEX idx_time_slots_course_id ON time_slots(course_id);
 
 -- End of script

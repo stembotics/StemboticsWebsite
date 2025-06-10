@@ -1,0 +1,138 @@
+---
+import { db } from '../../lib/db';
+
+interface Props {
+  courseId: string;
+  childId: string;
+}
+
+interface TimeSlot {
+  id: string;
+  day_of_week: string;
+  start_time: string;
+  end_time: string;
+  max_capacity: number;
+  current_enrollment: number;
+}
+
+const { courseId, childId } = Astro.props;
+
+// Fetch available time slots for this course
+const timeSlotsResult = await db.execute({
+  sql: `
+    SELECT 
+      ts.*,
+      (SELECT COUNT(*) FROM enrollments e WHERE e.time_slot_id = ts.id) as current_enrollment
+    FROM time_slots ts
+    WHERE ts.course_id = ?
+    ORDER BY ts.day_of_week, ts.start_time
+  `,
+  args: [courseId]
+});
+
+const timeSlots: TimeSlot[] = timeSlotsResult.rows.map(row => ({
+  id: String(row.id),
+  day_of_week: String(row.day_of_week),
+  start_time: String(row.start_time),
+  end_time: String(row.end_time),
+  max_capacity: Number(row.max_capacity),
+  current_enrollment: Number(row.current_enrollment)
+}));
+---
+
+<div>
+  <label for="timeSlotId" class="block text-sm font-medium text-slate-700 mb-1">
+    Select Time Slot
+  </label>
+  <select
+    id="timeSlotId"
+    name="timeSlotId"
+    required
+    class="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-slate-900"
+  >
+    <option value="">Choose a time slot...</option>
+    {timeSlots.map((slot: TimeSlot) => (
+      <option value={slot.id} disabled={slot.current_enrollment >= slot.max_capacity}>
+        {slot.day_of_week} {slot.start_time} - {slot.end_time} 
+        ({slot.current_enrollment}/{slot.max_capacity} enrolled)
+      </option>
+    ))}
+  </select>
+  {timeSlots.length === 0 && (
+    <p class="mt-2 text-sm text-slate-500">
+      No time slots available for this course.
+    </p>
+  )}
+</div>
+
+<script define:vars={{ courseId }}>
+  // Update time slot options when child selection changes
+  const childSelect = document.getElementById('childId');
+  const timeSlotSelect = document.getElementById('timeSlotId');
+  const form = document.getElementById('enrollment-form');
+
+  childSelect?.addEventListener('change', async () => {
+    const childId = childSelect.value;
+    if (!childId) return;
+
+    try {
+      const response = await fetch(`/api/courses/${courseId}/available-slots?childId=${childId}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch available time slots');
+      }
+
+      // Update time slot options
+      timeSlotSelect.innerHTML = '<option value="">Choose a time slot...</option>';
+      data.timeSlots.forEach(slot => {
+        const option = document.createElement('option');
+        option.value = slot.id;
+        option.textContent = `${slot.day_of_week} ${slot.start_time} - ${slot.end_time} (${slot.current_enrollment}/${slot.max_capacity} enrolled)`;
+        option.disabled = slot.current_enrollment >= slot.max_capacity;
+        timeSlotSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Error fetching available time slots:', error);
+    }
+  });
+
+  // Handle form submission
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const childId = childSelect.value;
+    const timeSlotId = timeSlotSelect.value;
+
+    if (!childId || !timeSlotId) {
+      alert('Please select both a child and a time slot');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/courses/enroll', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1]}`
+        },
+        body: JSON.stringify({
+          courseId: Number(courseId),
+          childId: Number(childId),
+          timeSlotId: Number(timeSlotId)
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to enroll in course');
+      }
+
+      // Redirect to success page or show success message
+      window.location.href = `/courses/${courseId}?enrolled=true`;
+    } catch (error) {
+      alert(error.message || 'An error occurred while enrolling in the course');
+    }
+  });
+</script> 

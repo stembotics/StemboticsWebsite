@@ -1,10 +1,11 @@
 /* empty css                                       */
 import { c as createComponent, a as createAstro, d as renderTemplate, f as defineScriptVars, b as addAttribute, m as maybeRenderHead, e as renderComponent, u as unescapeHTML } from '../../../chunks/astro/server_BXRAwln_.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../../../chunks/Layout_3hfigpS4.mjs';
+import { $ as $$Layout } from '../../../chunks/Layout_NaL3egT4.mjs';
 import 'clsx';
-import { d as db, v as verifyToken } from '../../../chunks/auth_DTf2el9S.mjs';
+import { d as db, v as verifyToken } from '../../../chunks/auth_DGYWq9VH.mjs';
 /* empty css                                        */
+import { $ as $$TimeSlotManager } from '../../../chunks/TimeSlotManager_D3TlHMBy.mjs';
 export { r as renderers } from '../../../chunks/internal_BsTt5pTQ.mjs';
 
 var __freeze$1 = Object.freeze;
@@ -287,9 +288,9 @@ const $$Manage = createComponent(async ($$result, $$props, $$slots) => {
     instructor_name: `${courseResult.rows[0].first_name} ${courseResult.rows[0].last_name}`
   };
   const studentsResult = await db.execute({
-    sql: `SELECT u.id, u.first_name, u.last_name
+    sql: `SELECT c.id, c.first_name, c.last_name
         FROM enrollments e
-        JOIN users u ON e.user_id = u.id
+        JOIN children c ON e.child_id = c.id
         WHERE e.course_id = ?`,
     args: [id]
   });
@@ -732,7 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alert('Script initialization error. See console for details.');
   }
 });
-<\/script>`])), renderComponent($$result, "Layout", $$Layout, { "title": `Manage Course | ${course.title}` }, { "default": async ($$result2) => renderTemplate(_a || (_a = __template([" ", '<div class="min-h-screen bg-slate-50"> <div class="bg-gradient-to-r from-primary-600 to-secondary-600 pb-32"> <header class="py-10"> <div class="container-custom"> <div class="flex items-center justify-between"> <div> <h1 class="text-white text-3xl font-bold">', '</h1> <p class="mt-2 text-primary-100">\nInstructor: ', " </p> </div> <a", ' class="btn-white">\nView Course\n</a> </div> </div> </header> </div> <main class="-mt-32"> <div class="container-custom"> <div class="bg-white rounded-lg shadow-sm p-6 mb-8"> ', ' </div> <div class="bg-white rounded-lg shadow-md p-6 mb-8"> <h2 class="text-2xl font-bold mb-4">Class Sessions & Attendance</h2> <form id="add-session-form" class="flex flex-col md:flex-row gap-4 mb-6"> <input type="date" name="session_date" class="border rounded px-3 py-2" required> <input type="text" name="notes" class="border rounded px-3 py-2 flex-1" placeholder="Session notes (optional)"> <button type="submit" class="btn-primary">Add Session</button> </form> <div id="sessions-list"></div> </div> </div> </main> </div>  <script type="application/json" id="course-id-data">', '<\/script> <script type="application/json" id="students-data">', "<\/script>  "])), maybeRenderHead(), course.title, course.instructor_name, addAttribute(`/courses/${course.id}`, "href"), renderComponent($$result2, "WeeklyContentForm", $$WeeklyContentForm, { "courseId": course.id }), unescapeHTML(JSON.stringify(String(id))), unescapeHTML(JSON.stringify(students))) }));
+<\/script>`])), renderComponent($$result, "Layout", $$Layout, { "title": `Manage Course | ${course.title}` }, { "default": async ($$result2) => renderTemplate(_a || (_a = __template([" ", '<div class="min-h-screen bg-slate-50"> <div class="bg-gradient-to-r from-primary-600 to-secondary-600 pb-32"> <header class="py-10"> <div class="container-custom"> <div class="flex items-center justify-between"> <div> <h1 class="text-white text-3xl font-bold">', '</h1> <p class="mt-2 text-primary-100">\nInstructor: ', " </p> </div> <a", ' class="btn-white">\nView Course\n</a> </div> </div> </header> </div> <main class="-mt-32"> <div class="container-custom"> <div class="bg-white rounded-lg shadow-sm p-6 mb-8"> ', ' </div> <div class="bg-white rounded-lg shadow-sm p-6 mb-8"> <h2 class="text-2xl font-bold mb-4">Time Slots</h2> ', ' </div> <div class="bg-white rounded-lg shadow-md p-6 mb-8"> <h2 class="text-2xl font-bold mb-4">Class Sessions & Attendance</h2> <form id="add-session-form" class="flex flex-col md:flex-row gap-4 mb-6"> <input type="date" name="session_date" class="border rounded px-3 py-2" required> <input type="text" name="notes" class="border rounded px-3 py-2 flex-1" placeholder="Session notes (optional)"> <button type="submit" class="btn-primary">Add Session</button> </form> <div id="sessions-list"></div> </div> </div> </main> </div>  <script type="application/json" id="course-id-data">', '<\/script> <script type="application/json" id="students-data">', "<\/script>  "])), maybeRenderHead(), course.title, course.instructor_name, addAttribute(`/courses/${course.id}`, "href"), renderComponent($$result2, "WeeklyContentForm", $$WeeklyContentForm, { "courseId": course.id }), renderComponent($$result2, "TimeSlotManager", $$TimeSlotManager, { "courseId": Number(course.id), "isEditing": true }), unescapeHTML(JSON.stringify(String(id))), unescapeHTML(JSON.stringify(students))) }));
 }, "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/pages/courses/[id]/manage.astro", void 0);
 
 const $$file = "/Users/krithikalluri/Documents/GitHub/StemboticsWebsite/src/pages/courses/[id]/manage.astro";

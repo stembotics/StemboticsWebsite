@@ -1,4 +1,4 @@
-import { v as verifyToken, d as db } from '../../../chunks/auth_DTf2el9S.mjs';
+import { v as verifyToken, d as db } from '../../../chunks/auth_DGYWq9VH.mjs';
 import nodemailer from 'nodemailer';
 export { r as renderers } from '../../../chunks/internal_BsTt5pTQ.mjs';
 
@@ -74,92 +74,107 @@ async function sendCourseEnrollmentEmail(data) {
 }
 
 const prerender = false;
-const POST = async ({ request }) => {
+const POST = async ({ request, cookies }) => {
   try {
-    const token = request.headers.get("Authorization")?.split(" ")[1];
-    if (!token) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const user = await verifyToken(token);
+    const token = cookies.get("token");
+    const user = token ? verifyToken(token.value) : null;
     if (!user || user.role !== "parent") {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { "Content-Type": "application/json" }
       });
     }
-    const data = await request.json();
-    const { childId, courseId } = data;
-    if (!childId || !courseId) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+    const { courseId, childId, timeSlotId } = await request.json();
+    const courseIdNum = Number(courseId);
+    const childIdNum = Number(childId);
+    const timeSlotIdNum = Number(timeSlotId);
+    if (isNaN(courseIdNum) || isNaN(childIdNum) || isNaN(timeSlotIdNum)) {
+      return new Response(JSON.stringify({ error: "Invalid ID format" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
     const childResult = await db.execute({
-      sql: `
-        SELECT * FROM children
-        WHERE id = ? AND parent_user_id = ?
-      `,
-      args: [childId, user.userId]
+      sql: "SELECT id, first_name, last_name FROM children WHERE id = ? AND parent_user_id = ?",
+      args: [childIdNum, user.userId]
     });
-    if (childResult.rows.length === 0) {
+    if (!childResult.rows.length) {
       return new Response(JSON.stringify({ error: "Child not found" }), {
         status: 404,
         headers: { "Content-Type": "application/json" }
       });
     }
-    const courseResult = await db.execute({
-      sql: `
-        SELECT * FROM courses
-        WHERE id = ?
-      `,
-      args: [courseId]
+    const existingEnrollment = await db.execute({
+      sql: "SELECT id, time_slot_id FROM enrollments WHERE child_id = ? AND course_id = ?",
+      args: [childIdNum, courseIdNum]
     });
-    if (courseResult.rows.length === 0) {
-      return new Response(JSON.stringify({ error: "Course not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const enrollmentResult = await db.execute({
-      sql: `
-        SELECT * FROM enrollments
-        WHERE child_id = ? AND course_id = ?
-      `,
-      args: [childId, courseId]
-    });
-    if (enrollmentResult.rows.length > 0) {
-      return new Response(JSON.stringify({ error: "Already enrolled in this course" }), {
+    if (existingEnrollment.rows.length) {
+      const currentTimeSlotId = Number(existingEnrollment.rows[0].time_slot_id);
+      if (currentTimeSlotId !== timeSlotIdNum) {
+        await db.execute({
+          sql: "UPDATE enrollments SET time_slot_id = ? WHERE child_id = ? AND course_id = ?",
+          args: [timeSlotIdNum, childIdNum, courseIdNum]
+        });
+        return new Response(JSON.stringify({ success: true, message: "Time slot updated" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      return new Response(JSON.stringify({ error: "Already enrolled in this course with the same time slot" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
-    const result = await db.execute({
+    const timeSlotResult = await db.execute({
+      sql: `
+        SELECT 
+          ts.*,
+          c.title,
+          c.duration,
+          c.level,
+          (SELECT COUNT(*) FROM enrollments e WHERE e.time_slot_id = ts.id) as current_enrollment
+        FROM time_slots ts
+        JOIN courses c ON c.id = ts.course_id
+        WHERE ts.id = ? AND ts.course_id = ?
+      `,
+      args: [timeSlotIdNum, courseIdNum]
+    });
+    if (!timeSlotResult.rows.length) {
+      return new Response(JSON.stringify({ error: "Time slot not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const timeSlot = timeSlotResult.rows[0];
+    const currentEnrollment = Number(timeSlot.current_enrollment) || 0;
+    const maxCapacity = Number(timeSlot.max_capacity) || 0;
+    if (currentEnrollment >= maxCapacity) {
+      return new Response(JSON.stringify({ error: "Time slot is full" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    await db.execute({
       sql: `
         INSERT INTO enrollments (
-          child_id,
-          course_id,
-          status,
-          created_at,
-          updated_at
-        ) VALUES (?, ?, 'pending', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        RETURNING *
+          child_id, course_id, time_slot_id, status
+        ) VALUES (?, ?, ?, 'pending')
       `,
-      args: [childId, courseId]
+      args: [childIdNum, courseIdNum, timeSlotIdNum]
     });
-    const enrollment = result.rows[0];
-    await sendCourseEnrollmentEmail({
-      studentName: `${String(childResult.rows[0].first_name)} ${String(childResult.rows[0].last_name)}`,
-      courseName: String(courseResult.rows[0].title),
-      courseStartDate: (/* @__PURE__ */ new Date()).toISOString(),
-      courseDuration: String(courseResult.rows[0].duration),
-      courseLevel: String(courseResult.rows[0].level)
-    });
-    return new Response(JSON.stringify(enrollment), {
-      status: 201,
+    try {
+      await sendCourseEnrollmentEmail({
+        studentName: `${String(childResult.rows[0].first_name)} ${String(childResult.rows[0].last_name)}`,
+        courseName: String(timeSlot.title),
+        courseStartDate: (/* @__PURE__ */ new Date()).toISOString(),
+        courseDuration: String(timeSlot.duration),
+        courseLevel: String(timeSlot.level)
+      });
+    } catch (emailError) {
+      console.error("Error sending enrollment email:", emailError);
+    }
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
       headers: { "Content-Type": "application/json" }
     });
   } catch (error) {

@@ -68,14 +68,26 @@ async function getChildren(parentId) {
             'id', e.id,
             'course', json_object(
               'id', co.id,
-              'title', co.title
+              'title', co.title,
+              'description', co.description,
+              'instructor', (
+                SELECT u.first_name || ' ' || u.last_name
+                FROM users u
+                WHERE u.id = co.instructor_id
+              )
             ),
-            'status', e.status
+            'status', e.status,
+            'time_slot', CASE WHEN ts.id IS NOT NULL THEN json_object(
+              'day_of_week', ts.day_of_week,
+              'start_time', ts.start_time,
+              'end_time', ts.end_time
+            ) ELSE NULL END
           )
         ) as enrollments
       FROM children c
       LEFT JOIN enrollments e ON c.id = e.child_id
       LEFT JOIN courses co ON e.course_id = co.id
+      LEFT JOIN time_slots ts ON e.time_slot_id = ts.id
       WHERE c.parent_user_id = ?
       GROUP BY c.id
     `,

@@ -210,7 +210,7 @@ const teacherSchema = z.object({
         throw new Error(error.message || 'Failed to sign up');
       }
 
-      window.location.href = '/login?message=Teacher application submitted successfully';
+      window.location.href = '/dashboard';
     } catch (error) {
       if (error instanceof z.ZodError) {
         errorDiv.textContent = error.errors[0].message;

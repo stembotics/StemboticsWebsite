@@ -1,4 +1,5 @@
 ---
+import TimeSlotManager from './TimeSlotManager.astro';
 ---
 
 <form id="courseForm" class="space-y-6">
@@ -82,6 +83,11 @@
     </div>
   </div>
 
+  <div>
+    <h3 class="text-lg font-semibold text-gray-900 mb-2">Time Slots</h3>
+    <TimeSlotManager courseId={null} isEditing={false} />
+  </div>
+
   <div id="errorMessage" class="text-red-600 text-sm hidden"></div>
 
   <button type="submit" class="btn-primary w-full">
@@ -106,6 +112,21 @@
       price: parseFloat(formData.get('price') as string)
     };
 
+    // Collect time slots from the TimeSlotManager
+    const timeSlots = Array.from(document.querySelectorAll('.time-slot-item')).map(item => {
+      const dayOfWeek = (item.querySelector('[name="day_of_week"]') as HTMLSelectElement)?.value || '';
+      const startTime = (item.querySelector('[name="start_time"]') as HTMLInputElement)?.value || '';
+      const endTime = (item.querySelector('[name="end_time"]') as HTMLInputElement)?.value || '';
+      const maxCapacity = (item.querySelector('[name="max_capacity"]') as HTMLInputElement)?.value || '10';
+      return {
+        day_of_week: dayOfWeek,
+        start_time: startTime,
+        end_time: endTime,
+        max_capacity: parseInt(maxCapacity, 10)
+      };
+    });
+    (data as any).timeSlots = timeSlots;
+
     try {
       const response = await fetch('/api/courses/create', {
         method: 'POST',
@@ -121,8 +142,8 @@
         throw new Error(result.error || 'Failed to create course');
       }
 
-      // Redirect to the course page
-      window.location.href = `/courses/${result.courseId}`;
+      // Redirect to manage the course after creation
+      window.location.href = `/courses/${result.courseId}/manage`;
     } catch (error: any) {
       if (errorMessage) {
         errorMessage.textContent = error.message;

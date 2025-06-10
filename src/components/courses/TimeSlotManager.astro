@@ -1,0 +1,228 @@
+---
+import { db } from '../../lib/db';
+
+interface Props {
+  courseId: number;
+  isEditing?: boolean;
+}
+
+const { courseId, isEditing = false } = Astro.props;
+
+// Fetch existing time slots if editing
+let timeSlots: any[] = [];
+if (isEditing) {
+  const result = await db.execute({
+    sql: `
+      SELECT * FROM time_slots 
+      WHERE course_id = ? 
+      ORDER BY day_of_week, start_time
+    `,
+    args: [courseId]
+  });
+  timeSlots = result.rows;
+}
+---
+
+<div class="space-y-6">
+  <input type="hidden" id="courseId" value={courseId} />
+  <div class="flex justify-between items-center">
+    <h3 class="text-lg font-semibold text-gray-900">Course Time Slots</h3>
+    <button
+      type="button"
+      class="add-time-slot-btn inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+    >
+      Add Time Slot
+    </button>
+  </div>
+
+  <div id="time-slots-container" class="space-y-4">
+    {timeSlots.map((slot: any) => (
+      <div class="time-slot-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Day of Week</label>
+            <select
+              name="day_of_week"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              value={slot.day_of_week}
+            >
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Start Time</label>
+            <input
+              type="time"
+              name="start_time"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              value={slot.start_time}
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">End Time</label>
+            <input
+              type="time"
+              name="end_time"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              value={slot.end_time}
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Max Capacity</label>
+            <input
+              type="number"
+              name="max_capacity"
+              min="1"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              value={slot.max_capacity}
+            />
+          </div>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button
+            type="button"
+            class="remove-time-slot-btn inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            data-slot-id={slot.id}
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+  <button
+    type="button"
+    class="save-time-slots-btn btn-primary mt-4"
+  >
+    Save Time Slots
+  </button>
+</div>
+
+<script>
+  // Template for new time slot
+  const timeSlotTemplate = `
+    <div class="time-slot-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Day of Week</label>
+          <select
+            name="day_of_week"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+          >
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Start Time</label>
+          <input
+            type="time"
+            name="start_time"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">End Time</label>
+          <input
+            type="time"
+            name="end_time"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Max Capacity</label>
+          <input
+            type="number"
+            name="max_capacity"
+            min="1"
+            value="10"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+          />
+        </div>
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button
+          type="button"
+          class="remove-time-slot-btn inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Add new time slot
+  document.querySelector('.add-time-slot-btn')?.addEventListener('click', () => {
+    const container = document.getElementById('time-slots-container');
+    if (container) {
+      container.insertAdjacentHTML('beforeend', timeSlotTemplate);
+    }
+  });
+
+  // Remove time slot
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('remove-time-slot-btn')) {
+      const timeSlotItem = target.closest('.time-slot-item');
+      if (timeSlotItem) {
+        timeSlotItem.remove();
+      }
+    }
+  });
+
+  // Save time slots
+  document.querySelector('.save-time-slots-btn')?.addEventListener('click', async () => {
+    const courseIdInput = document.getElementById('courseId') as HTMLInputElement;
+    if (!courseIdInput) {
+      console.error('Course ID input not found');
+      return;
+    }
+    const courseId = courseIdInput.value;
+    console.log('CourseId from input:', courseId);
+
+    const timeSlots = Array.from(document.querySelectorAll('.time-slot-item')).map(item => {
+      const dayOfWeek = (item.querySelector('[name="day_of_week"]') as HTMLSelectElement).value;
+      const startTime = (item.querySelector('[name="start_time"]') as HTMLInputElement).value;
+      const endTime = (item.querySelector('[name="end_time"]') as HTMLInputElement).value;
+      const maxCapacity = (item.querySelector('[name="max_capacity"]') as HTMLInputElement).value;
+      const slotId = (item.querySelector('.remove-time-slot-btn') as HTMLElement).dataset.slotId;
+
+      return {
+        id: slotId,
+        day_of_week: dayOfWeek,
+        start_time: startTime,
+        end_time: endTime,
+        max_capacity: parseInt(maxCapacity, 10)
+      };
+    });
+
+    try {
+      console.log({ courseId, timeSlots });
+      const response = await fetch('/api/courses/time-slots', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ courseId: Number(courseId), timeSlots })
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to save time slots');
+      }
+      alert('Time slots saved successfully!');
+    } catch (error: any) {
+      alert(error.message || 'An error occurred while saving time slots');
+    }
+  });
+</script> 

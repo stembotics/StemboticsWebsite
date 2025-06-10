@@ -3,6 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import WeeklyContentForm from '../../../components/courses/WeeklyContentForm.astro';
 import { db } from '../../../lib/db';
 import { verifyToken } from '../../../lib/auth';
+import TimeSlotManager from '../../../components/courses/TimeSlotManager.astro';
 
 interface Student {
   id: number;
@@ -48,9 +49,9 @@ const course = {
 
 // Fetch enrolled students
 const studentsResult = await db.execute({
-  sql: `SELECT u.id, u.first_name, u.last_name
+  sql: `SELECT c.id, c.first_name, c.last_name
         FROM enrollments e
-        JOIN users u ON e.user_id = u.id
+        JOIN children c ON e.child_id = c.id
         WHERE e.course_id = ?`,
   args: [id]
 });
@@ -85,6 +86,10 @@ const students: Student[] = studentsResult.rows.map(row => ({
       <div class="container-custom">
         <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
           <WeeklyContentForm courseId={course.id} />
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h2 class="text-2xl font-bold mb-4">Time Slots</h2>
+          <TimeSlotManager courseId={Number(course.id)} isEditing={true} />
         </div>
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 class="text-2xl font-bold mb-4">Class Sessions & Attendance</h2>

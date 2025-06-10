@@ -112,6 +112,14 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/api/courses/time-slots/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/courses/([^/]+?)/available-slots/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/api/courses/([^/]+?)/sessions/?$",
 			"dest": "_render"
 		},
