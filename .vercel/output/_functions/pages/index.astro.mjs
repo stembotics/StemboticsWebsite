@@ -1,9 +1,9 @@
 /* empty css                                 */
 import { c as createComponent, e as renderComponent, d as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_BXRAwln_.mjs';
 import 'kleur/colors';
-import { $ as $$Layout } from '../chunks/Layout_NaL3egT4.mjs';
+import { $ as $$Layout } from '../chunks/Layout_Dx2vdsDP.mjs';
 import { $ as $$CourseCard } from '../chunks/CourseCard_B1kI2N1J.mjs';
-import { d as db } from '../chunks/auth_DGYWq9VH.mjs';
+import { d as db } from '../chunks/db_C4TQcXrr.mjs';
 export { r as renderers } from '../chunks/internal_BsTt5pTQ.mjs';
 
 const prerender = false;

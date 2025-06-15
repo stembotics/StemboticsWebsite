@@ -1,6 +1,6 @@
 import { r as renderers } from './chunks/internal_BsTt5pTQ.mjs';
 import { c as createExports } from './chunks/entrypoint_B8bXPlb4.mjs';
-import { manifest } from './manifest_Cl-yQNBM.mjs';
+import { manifest } from './manifest_Dmebt5TK.mjs';
 
 const serverIslandMap = new Map();;
 
@@ -34,38 +34,39 @@ const _page26 = () => import('./pages/api/courses/_id_/sessions.astro.mjs');
 const _page27 = () => import('./pages/api/mailservice.astro.mjs');
 const _page28 = () => import('./pages/api/products/_id_.astro.mjs');
 const _page29 = () => import('./pages/api/products.astro.mjs');
-const _page30 = () => import('./pages/api/sessions/_sessionid_/attendance.astro.mjs');
-const _page31 = () => import('./pages/api/sessions/_sessionid_/notes.astro.mjs');
-const _page32 = () => import('./pages/api/teachers/add-achievement.astro.mjs');
-const _page33 = () => import('./pages/api/teachers/add-note.astro.mjs');
-const _page34 = () => import('./pages/api/teachers/delete-achievement/_id_.astro.mjs');
-const _page35 = () => import('./pages/api/teachers/update-attendance.astro.mjs');
-const _page36 = () => import('./pages/api/teachers/update-bio.astro.mjs');
-const _page37 = () => import('./pages/api/teachers/update-profile.astro.mjs');
-const _page38 = () => import('./pages/api/teachers/upload-image.astro.mjs');
-const _page39 = () => import('./pages/cart.astro.mjs');
-const _page40 = () => import('./pages/checkout/cancel.astro.mjs');
-const _page41 = () => import('./pages/checkout/success.astro.mjs');
-const _page42 = () => import('./pages/contact.astro.mjs');
-const _page43 = () => import('./pages/courses/_id_/content/_contentid_.astro.mjs');
-const _page44 = () => import('./pages/courses/_id_/manage.astro.mjs');
-const _page45 = () => import('./pages/courses/_id_.astro.mjs');
-const _page46 = () => import('./pages/courses.astro.mjs');
-const _page47 = () => import('./pages/dashboard.astro.mjs');
-const _page48 = () => import('./pages/faq.astro.mjs');
-const _page49 = () => import('./pages/login.astro.mjs');
-const _page50 = () => import('./pages/privacy.astro.mjs');
-const _page51 = () => import('./pages/products/_id_.astro.mjs');
-const _page52 = () => import('./pages/products.astro.mjs');
-const _page53 = () => import('./pages/resources.astro.mjs');
-const _page54 = () => import('./pages/signup.astro.mjs');
-const _page55 = () => import('./pages/sitemap.xml.astro.mjs');
-const _page56 = () => import('./pages/teachers/signup.astro.mjs');
-const _page57 = () => import('./pages/teachers/_id_.astro.mjs');
-const _page58 = () => import('./pages/teachers.astro.mjs');
-const _page59 = () => import('./pages/terms.astro.mjs');
-const _page60 = () => import('./pages/why-us.astro.mjs');
-const _page61 = () => import('./pages/index.astro.mjs');
+const _page30 = () => import('./pages/api/sessions/_id_/attendance.astro.mjs');
+const _page31 = () => import('./pages/api/sessions/_sessionid_/attendance.astro.mjs');
+const _page32 = () => import('./pages/api/sessions/_sessionid_/notes.astro.mjs');
+const _page33 = () => import('./pages/api/teachers/add-achievement.astro.mjs');
+const _page34 = () => import('./pages/api/teachers/add-note.astro.mjs');
+const _page35 = () => import('./pages/api/teachers/delete-achievement/_id_.astro.mjs');
+const _page36 = () => import('./pages/api/teachers/update-attendance.astro.mjs');
+const _page37 = () => import('./pages/api/teachers/update-bio.astro.mjs');
+const _page38 = () => import('./pages/api/teachers/update-profile.astro.mjs');
+const _page39 = () => import('./pages/api/teachers/upload-image.astro.mjs');
+const _page40 = () => import('./pages/cart.astro.mjs');
+const _page41 = () => import('./pages/checkout/cancel.astro.mjs');
+const _page42 = () => import('./pages/checkout/success.astro.mjs');
+const _page43 = () => import('./pages/contact.astro.mjs');
+const _page44 = () => import('./pages/courses/_id_/content/_contentid_.astro.mjs');
+const _page45 = () => import('./pages/courses/_id_/manage.astro.mjs');
+const _page46 = () => import('./pages/courses/_id_.astro.mjs');
+const _page47 = () => import('./pages/courses.astro.mjs');
+const _page48 = () => import('./pages/dashboard.astro.mjs');
+const _page49 = () => import('./pages/faq.astro.mjs');
+const _page50 = () => import('./pages/login.astro.mjs');
+const _page51 = () => import('./pages/privacy.astro.mjs');
+const _page52 = () => import('./pages/products/_id_.astro.mjs');
+const _page53 = () => import('./pages/products.astro.mjs');
+const _page54 = () => import('./pages/resources.astro.mjs');
+const _page55 = () => import('./pages/signup.astro.mjs');
+const _page56 = () => import('./pages/sitemap.xml.astro.mjs');
+const _page57 = () => import('./pages/teachers/signup.astro.mjs');
+const _page58 = () => import('./pages/teachers/_id_.astro.mjs');
+const _page59 = () => import('./pages/teachers.astro.mjs');
+const _page60 = () => import('./pages/terms.astro.mjs');
+const _page61 = () => import('./pages/why-us.astro.mjs');
+const _page62 = () => import('./pages/index.astro.mjs');
 const pageMap = new Map([
     ["node_modules/astro/dist/assets/endpoint/generic.js", _page0],
     ["src/pages/404.astro", _page1],
@@ -97,38 +98,39 @@ const pageMap = new Map([
     ["src/pages/api/mailService.ts", _page27],
     ["src/pages/api/products/[id].ts", _page28],
     ["src/pages/api/products/index.ts", _page29],
-    ["src/pages/api/sessions/[sessionId]/attendance.ts", _page30],
-    ["src/pages/api/sessions/[sessionId]/notes.ts", _page31],
-    ["src/pages/api/teachers/add-achievement.ts", _page32],
-    ["src/pages/api/teachers/add-note.ts", _page33],
-    ["src/pages/api/teachers/delete-achievement/[id].ts", _page34],
-    ["src/pages/api/teachers/update-attendance.ts", _page35],
-    ["src/pages/api/teachers/update-bio.ts", _page36],
-    ["src/pages/api/teachers/update-profile.ts", _page37],
-    ["src/pages/api/teachers/upload-image.ts", _page38],
-    ["src/pages/cart.astro", _page39],
-    ["src/pages/checkout/cancel.astro", _page40],
-    ["src/pages/checkout/success.astro", _page41],
-    ["src/pages/contact.astro", _page42],
-    ["src/pages/courses/[id]/content/[contentId].astro", _page43],
-    ["src/pages/courses/[id]/manage.astro", _page44],
-    ["src/pages/courses/[id].astro", _page45],
-    ["src/pages/courses/index.astro", _page46],
-    ["src/pages/dashboard/index.astro", _page47],
-    ["src/pages/faq.astro", _page48],
-    ["src/pages/login.astro", _page49],
-    ["src/pages/privacy.astro", _page50],
-    ["src/pages/products/[id].astro", _page51],
-    ["src/pages/products/index.astro", _page52],
-    ["src/pages/resources.astro", _page53],
-    ["src/pages/signup.astro", _page54],
-    ["src/pages/sitemap.xml.ts", _page55],
-    ["src/pages/teachers/signup.astro", _page56],
-    ["src/pages/teachers/[id].astro", _page57],
-    ["src/pages/teachers/index.astro", _page58],
-    ["src/pages/terms.astro", _page59],
-    ["src/pages/why-us.astro", _page60],
-    ["src/pages/index.astro", _page61]
+    ["src/pages/api/sessions/[id]/attendance.ts", _page30],
+    ["src/pages/api/sessions/[sessionId]/attendance.ts", _page31],
+    ["src/pages/api/sessions/[sessionId]/notes.ts", _page32],
+    ["src/pages/api/teachers/add-achievement.ts", _page33],
+    ["src/pages/api/teachers/add-note.ts", _page34],
+    ["src/pages/api/teachers/delete-achievement/[id].ts", _page35],
+    ["src/pages/api/teachers/update-attendance.ts", _page36],
+    ["src/pages/api/teachers/update-bio.ts", _page37],
+    ["src/pages/api/teachers/update-profile.ts", _page38],
+    ["src/pages/api/teachers/upload-image.ts", _page39],
+    ["src/pages/cart.astro", _page40],
+    ["src/pages/checkout/cancel.astro", _page41],
+    ["src/pages/checkout/success.astro", _page42],
+    ["src/pages/contact.astro", _page43],
+    ["src/pages/courses/[id]/content/[contentId].astro", _page44],
+    ["src/pages/courses/[id]/manage.astro", _page45],
+    ["src/pages/courses/[id].astro", _page46],
+    ["src/pages/courses/index.astro", _page47],
+    ["src/pages/dashboard/index.astro", _page48],
+    ["src/pages/faq.astro", _page49],
+    ["src/pages/login.astro", _page50],
+    ["src/pages/privacy.astro", _page51],
+    ["src/pages/products/[id].astro", _page52],
+    ["src/pages/products/index.astro", _page53],
+    ["src/pages/resources.astro", _page54],
+    ["src/pages/signup.astro", _page55],
+    ["src/pages/sitemap.xml.ts", _page56],
+    ["src/pages/teachers/signup.astro", _page57],
+    ["src/pages/teachers/[id].astro", _page58],
+    ["src/pages/teachers/index.astro", _page59],
+    ["src/pages/terms.astro", _page60],
+    ["src/pages/why-us.astro", _page61],
+    ["src/pages/index.astro", _page62]
 ]);
 
 const _manifest = Object.assign(manifest, {
@@ -139,7 +141,7 @@ const _manifest = Object.assign(manifest, {
     middleware: () => import('./_noop-middleware.mjs')
 });
 const _args = {
-    "middlewareSecret": "a86f1d3c-4df1-4511-a5d1-14857b886272",
+    "middlewareSecret": "a72d62ea-e627-4b86-94dc-08bdf7df425b",
     "skewProtection": false
 };
 const _exports = createExports(_manifest, _args);

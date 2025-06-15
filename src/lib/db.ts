@@ -236,7 +236,18 @@ export async function getChildren(parentId: number): Promise<Child[]> {
               'day_of_week', ts.day_of_week,
               'start_time', ts.start_time,
               'end_time', ts.end_time
-            ) ELSE NULL END
+            ) ELSE NULL END,
+            'attendance', (
+              SELECT json_group_array(
+                json_object(
+                  'date', ca.date,
+                  'status', ca.status
+                )
+              )
+              FROM course_attendance ca
+              WHERE ca.child_id = c.id
+              AND ca.course_id = co.id
+            )
           )
         ) as enrollments
       FROM children c
